@@ -1,0 +1,205 @@
+[
+  {
+    "type" : "module"
+  },
+  {
+    "ip": "192.168.1.10",
+    "device_type": "Domain Controller",
+    "open_ports": [53, 88, 389, 445],
+    "protocol": "LDAP/Kerberos",
+    "os": "Windows Server 2019",
+    "last_patch_year": 2024,
+    "uptime_days": 45,
+    "location": "Primary Data Center"
+  },
+  {
+    "ip": "192.168.1.12",
+    "device_type": "Legacy File Server",
+    "open_ports": [139, 445],
+    "protocol": "SMBv1",
+    "os": "Windows Server 2008",
+    "last_patch_year": 2015,
+    "uptime_days": 820,
+    "location": "Records Department"
+  },
+  {
+    "ip": "192.168.1.15",
+    "device_type": "Biometric Attendance Device",
+    "open_ports": [80, 443],
+    "protocol": "HTTP",
+    "os": "Embedded Linux 2.6",
+    "last_patch_year": 2016,
+    "uptime_days": 1300,
+    "location": "Main Entrance"
+  },
+  {
+    "ip": "192.168.1.18",
+    "device_type": "Citizen Service Kiosk",
+    "open_ports": [3389, 445],
+    "protocol": "RDP",
+    "os": "Windows 7",
+    "last_patch_year": 2018,
+    "uptime_days": 600,
+    "location": "Service Hall"
+  },
+  {
+    "ip": "192.168.1.20",
+    "device_type": "CCTV Camera",
+    "open_ports": [554, 80],
+    "protocol": "RTSP",
+    "os": "Embedded Firmware 1.0",
+    "last_patch_year": 2017,
+    "uptime_days": 950,
+    "location": "Parking Area"
+  },
+  {
+    "ip": "192.168.1.22",
+    "device_type": "Network Printer",
+    "open_ports": [9100, 631],
+    "protocol": "IPP",
+    "os": "Printer Firmware v3",
+    "last_patch_year": 2020,
+    "uptime_days": 300,
+    "location": "Administrative Office"
+  },
+  {
+    "ip": "192.168.1.25",
+    "device_type": "Application Server",
+    "open_ports": [8080, 22],
+    "protocol": "HTTP/SSH",
+    "os": "Ubuntu 22.04",
+    "last_patch_year": 2024,
+    "uptime_days": 20,
+    "location": "Primary Data Center"
+  },
+  {
+    "ip": "192.168.1.28",
+    "device_type": "Old Database Server",
+    "open_ports": [1433],
+    "protocol": "MSSQL",
+    "os": "Windows Server 2003",
+    "last_patch_year": 2012,
+    "uptime_days": 2000,
+    "location": "Archive Room"
+  },
+  {
+    "ip": "192.168.1.30",
+    "device_type": "Email Server",
+    "open_ports": [25, 110, 143, 443],
+    "protocol": "SMTP/IMAP",
+    "os": "Windows Server 2016",
+    "last_patch_year": 2023,
+    "uptime_days": 120,
+    "location": "Primary Data Center"
+  },
+  {
+    "ip": "192.168.1.32",
+    "device_type": "HR Management Server",
+    "open_ports": [8443, 22],
+    "protocol": "HTTPS/SSH",
+    "os": "CentOS 7",
+    "last_patch_year": 2021,
+    "uptime_days": 400,
+    "location": "HR Department"
+  },
+  {
+    "ip": "192.168.1.35",
+    "device_type": "Firewall Appliance",
+    "open_ports": [443],
+    "protocol": "HTTPS",
+    "os": "Firewall OS v5",
+    "last_patch_year": 2023,
+    "uptime_days": 150,
+    "location": "Network Edge"
+  },
+  {
+    "ip": "192.168.1.38",
+    "device_type": "IoT Environmental Sensor",
+    "open_ports": [1883],
+    "protocol": "MQTT",
+    "os": "Embedded RTOS",
+    "last_patch_year": 2019,
+    "uptime_days": 1100,
+    "location": "Storage Facility"
+  },
+  {
+    "ip": "192.168.1.40",
+    "device_type": "Backup Server",
+    "open_ports": [21, 22],
+    "protocol": "FTP/SSH",
+    "os": "Ubuntu 18.04",
+    "last_patch_year": 2022,
+    "uptime_days": 365,
+    "location": "Secondary Data Center"
+  },
+  {
+    "ip": "192.168.1.42",
+    "device_type": "Attendance Logging Server",
+    "open_ports": [8081],
+    "protocol": "HTTP",
+    "os": "Windows Server 2012",
+    "last_patch_year": 2019,
+    "uptime_days": 720,
+    "location": "Admin Block"
+  },
+  {
+    "ip": "192.168.1.45",
+    "device_type": "Public WiFi Controller",
+    "open_ports": [22, 443],
+    "protocol": "SSH/HTTPS",
+    "os": "Linux Kernel 4.4",
+    "last_patch_year": 2020,
+    "uptime_days": 500,
+    "location": "Reception Area"
+  },
+  {
+    "ip": "192.168.1.48",
+    "device_type": "GIS Mapping Server",
+    "open_ports": [8080, 5432],
+    "protocol": "HTTP/PostgreSQL",
+    "os": "Ubuntu 20.04",
+    "last_patch_year": 2023,
+    "uptime_days": 210,
+    "location": "Planning Department"
+  },
+  {
+    "ip": "192.168.1.50",
+    "device_type": "Old Web Portal Server",
+    "open_ports": [80],
+    "protocol": "HTTP",
+    "os": "Windows Server 2008 R2",
+    "last_patch_year": 2016,
+    "uptime_days": 900,
+    "location": "DMZ"
+  },
+  {
+    "ip": "192.168.1.52",
+    "device_type": "Document Scanning System",
+    "open_ports": [8082],
+    "protocol": "HTTP",
+    "os": "Embedded Linux 3.0",
+    "last_patch_year": 2017,
+    "uptime_days": 850,
+    "location": "Records Room"
+  },
+  {
+    "ip": "192.168.1.55",
+    "device_type": "Finance Application Server",
+    "open_ports": [8443],
+    "protocol": "HTTPS",
+    "os": "Red Hat Enterprise Linux 8",
+    "last_patch_year": 2024,
+    "uptime_days": 60,
+    "location": "Finance Department"
+  },
+  {
+    "ip": "192.168.1.58",
+    "device_type": "Legacy Payroll Server",
+    "open_ports": [445],
+    "protocol": "SMBv1",
+    "os": "Windows Server 2003",
+    "last_patch_year": 2013,
+    "uptime_days": 1700,
+    "location": "Finance Archive"
+  }
+]
