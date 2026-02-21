@@ -2779,10 +2779,10 @@ body.light-mode .data-table thead th {
 
 /* Critical Devices Grid */
 .critical-devices-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 0.75rem;
-    margin-top: 0.5rem
+    margin-top: 0.5rem;
 }
 
 .crit-device-card {
@@ -2832,6 +2832,30 @@ body.light-mode .data-table thead th {
     font-weight: 800;
     color: #ef4444;
     text-shadow: 0 0 12px rgba(239, 68, 68, 0.3)
+}
+
+/* Larger risk percentage styling for critical devices */
+.crit-device-card__score {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+/* Full-width wrapper and scroll for critical devices section */
+.critical-devices-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+}
+.critical-devices-grid--full {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 8px;
+}
+.critical-devices-grid--full .crit-device-card { min-width: 220px; }
+
+/* Ensure no horizontal scroll on small screens */
+@media (max-width: 900px) {
+    .critical-devices-grid { grid-template-columns: 1fr; }
+    .chart-container--donut { height: 300px; }
 }
 
 .crit-device-card__badges {
@@ -4651,6 +4675,17 @@ body.light-mode {
 .chart-container { width: 100%; }
 .chart-container--donut { height: 350px; display:flex; align-items:center; justify-content:center; }
 .chart-container--mid { height: 320px; }
+
+/* Chart card visibility and canvas sizing fixes */
+.chart-card {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+.chart-canvas-wrapper {
+    position: relative;
+    height: 350px;
+}
 
 /* Analytics larger chart variants */
 .chart-card--large { padding: 18px; margin-bottom: 18px; }

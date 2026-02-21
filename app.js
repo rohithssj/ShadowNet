@@ -312,11 +312,12 @@ function renderDashboard() {
     }
 
     const report = generateReport();
-    const topCritical = report.topCritical.slice(0, 5);
+    // collect all critical devices (risk_level === 'CRITICAL')
+    const criticalDevices = report.topCritical.filter(d => d.risk_level === 'CRITICAL');
     const highCriticalPct = Math.round(((report.critical + report.high) / report.total) * 100);
     const exposureIndex = Math.round(((report.critical + report.high) / report.total) * 100);
     // Build Top Critical HTML with dynamic severity classes based on risk percentage
-    const topCriticalHtml = topCritical.map((d, i) => {
+    const topCriticalHtml = criticalDevices.map((d, i) => {
         const p = parseInt(d.risk_score ?? d.risk_percentage ?? 0, 10) || 0;
         let cls = 'card-low';
         let badge = 'Low';
@@ -416,10 +417,21 @@ function renderDashboard() {
                 </div>
             </div>
 
-            <div class="dashboard-col dashboard-col--right">
-                <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Top Critical Devices</h3>
-                <div class="critical-devices-grid">
-                    ${topCriticalHtml}
+            
+        </div>
+
+        <!-- Risk Distribution Heat Matrix -->
+        <div class="chart-card chart-card--full" style="margin-top:18px;">
+            <h3 class="section-title"><i data-lucide="thermometer"></i> Risk Distribution Heat Matrix</h3>
+            <canvas id="chart-heat-matrix"></canvas>
+        </div>
+
+        <!-- Critical Devices Requiring Immediate Attention (Full Width) -->
+        <div class="chart-card" style="margin-top:20px;">
+            <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Critical Devices Requiring Immediate Attention</h3>
+            <div class="critical-devices-wrapper">
+                <div class="critical-devices-grid critical-devices-grid--full">
+                    ${topCriticalHtml || '<div style="padding:16px;color:var(--text-muted);">No critical devices at this time.</div>'}
                 </div>
             </div>
         </div>
@@ -551,11 +563,6 @@ function renderAnalytics() {
             <canvas id="chart-risk-trend-dual"></canvas>
         </div>
 
-        <!-- Risk Distribution Heat Matrix -->
-        <div class="chart-card chart-card--full">
-            <h3 class="section-title"><i data-lucide="thermometer"></i> Risk Distribution Heat Matrix</h3>
-            <canvas id="chart-heat-matrix"></canvas>
-        </div>
     `;
 }
 
@@ -566,7 +573,6 @@ function bindAnalytics() {
     drawImpactBreakdownChart();
     drawLifecycleCorrelationChart();
     drawDualRiskTrendChart();
-    drawHeatMatrixChart();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1590,12 +1596,27 @@ function drawDeviceTypesChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             indexAxis: 'y',
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: (items) => items[0].label,
+                        label: (ctx) => `${ctx.parsed.x} devices`
+                    }
+                }
             },
             scales: {
-                x: { beginAtZero: true }
+                x: { beginAtZero: true },
+                y: {
+                    ticks: {
+                        callback: function(val, index) {
+                            const label = this.getLabelForValue(index) || '';
+                            return label.length > 24 ? label.substring(0, 21) + '…' : label;
+                        }
+                    }
+                }
             }
         }
     });
