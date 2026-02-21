@@ -1,20 +1,25 @@
-const CURRENT_YEAR = new Date().getFullYear();
+// ═══════════════════════════════════════════════════════════
+// predictive_engine.js — DELEGATES TO CENTRAL ENGINE (engines.js)
+// ═══════════════════════════════════════════════════════════
+// This file no longer contains independent prediction logic.
+// Future risk is computed by ShadowEngines.processDevice() as
+// future_risk_percentage and future_risk_level.
+// ═══════════════════════════════════════════════════════════
 
-function predictFutureRisk(device) {
-  const yearsSincePatch = CURRENT_YEAR - device.last_patch_year;
-
-  if (yearsSincePatch >= 5 && yearsSincePatch < 8) {
-    return "⚠ Approaching Critical Risk (Patch aging)";
-  }
-
-  if (
-    device.os.includes("2008") ||
-    device.os.includes("2012")
-  ) {
-    return "⚠ OS Nearing End-of-Life";
-  }
-
-  return null;
+/**
+ * Predict future risk for a device.
+ * Uses the already-processed risk_score from the central engine.
+ * @param {Object} processedDevice - A device already processed by ShadowEngines
+ * @returns {Object} { future_risk_percentage, future_risk_level }
+ */
+function predictFutureRisk(processedDevice) {
+  return {
+    future_risk_percentage: processedDevice.future_risk_percentage,
+    future_risk_level: processedDevice.future_risk_level
+  };
 }
 
-export default predictFutureRisk;
+// Node.js / ES module export (if used outside browser)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = predictFutureRisk;
+}

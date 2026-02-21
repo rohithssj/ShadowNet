@@ -1,23 +1,21 @@
-function generateSummary(devices) {
-  let critical = 0;
-  let high = 0;
-  let medium = 0;
-  let low = 0;
+// ═══════════════════════════════════════════════════════════
+// report_engine.js — DELEGATES TO CENTRAL ENGINE (engines.js)
+// ═══════════════════════════════════════════════════════════
+// This file no longer contains independent report/counting logic.
+// All metrics are computed by ShadowEngines.generateReport().
+// ═══════════════════════════════════════════════════════════
 
-  devices.forEach(device => {
-    if (device.risk === "CRITICAL") critical++;
-    else if (device.risk === "HIGH") high++;
-    else if (device.risk === "MEDIUM") medium++;
-    else low++;
-  });
-
-  return {
-    total: devices.length,
-    critical,
-    high,
-    medium,
-    low
-  };
+/**
+ * Generate a summary report from processed devices.
+ * Delegates entirely to the central ShadowEngines module.
+ * @param {Array} processedDevices - Devices already processed by ShadowEngines
+ * @returns {Object} Full report with riskDist, securityScore, exposureIndex, etc.
+ */
+function generateSummary(processedDevices) {
+  return ShadowEngines.generateReport(processedDevices);
 }
 
-export default generateSummary;
+// Node.js / ES module export (if used outside browser)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = generateSummary;
+}

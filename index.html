@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Shadow Net — AI-Driven Cybersecurity Monitoring Dashboard" />
-    <title>Shadow Net — SOC Dashboard</title>
-
-    <!-- Fonts & Libraries -->
+    <meta name="description" content="Shadow Net — AI-Driven SOC Cybersecurity Monitoring Dashboard" />
+    <title>ShadowNet — SOC Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -20,66 +19,62 @@
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header" id="main-header">
-        <button class="header__menu-btn" id="sidebar-toggle" aria-label="Toggle sidebar">
-            <i data-lucide="menu"></i>
-        </button>
-        <div class="header__brand">
-            <i data-lucide="shield-check" class="header__icon"></i>
-            <h1 class="header__title">Shadow Net</h1>
+    <!-- Animated background grid -->
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-radar" aria-hidden="true"></div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="topnav" id="topnav">
+        <div class="topnav__left">
+            <button class="topnav__hamburger" id="hamburger-btn" aria-label="Toggle menu">
+                <i data-lucide="menu"></i>
+            </button>
+            <a href="#dashboard" class="topnav__brand">
+                <i data-lucide="shield-check" class="topnav__logo-icon"></i>
+                <span class="topnav__logo-text">SHADOWNET</span>
+            </a>
         </div>
 
-        <!-- Global Search -->
-        <div class="header__search-wrapper">
-            <i data-lucide="search" class="search__icon"></i>
-            <input type="text" id="global-search" class="header__search"
-                placeholder="Search devices by IP, type, risk, impact…" autocomplete="off" />
-            <div class="search-results" id="search-results"></div>
+        <div class="topnav__links" id="nav-links">
+            <a href="#dashboard" class="topnav__link active" data-page="dashboard">
+                <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+            </a>
+            <a href="#analytics" class="topnav__link" data-page="analytics">
+                <i data-lucide="bar-chart-3"></i><span>Analytics</span>
+            </a>
+            <a href="#devices" class="topnav__link" data-page="devices">
+                <i data-lucide="monitor"></i><span>Devices</span>
+            </a>
+            <a href="#alerts" class="topnav__link" data-page="alerts">
+                <i data-lucide="bell"></i><span>Alerts</span>
+                <span class="topnav__alert-badge" id="alert-badge">0</span>
+            </a>
+            <a href="#settings" class="topnav__link" data-page="settings">
+                <i data-lucide="settings"></i><span>Settings</span>
+            </a>
         </div>
 
-        <!-- Right Actions -->
-        <div class="header__actions">
-            <span class="header__team-badge">
-                <i data-lucide="flame" class="badge__icon"></i>
-                Team Ignite
-            </span>
-            <label class="toggle" for="theme-toggle" aria-label="Toggle dark or light mode">
-                <i data-lucide="moon" class="toggle__icon toggle__icon--dark"></i>
-                <input type="checkbox" id="theme-toggle" class="toggle__checkbox" />
-                <span class="toggle__slider"></span>
-                <i data-lucide="sun" class="toggle__icon toggle__icon--light"></i>
+        <div class="topnav__right">
+            <div class="topnav__search-wrapper">
+                <i data-lucide="search" class="search__icon"></i>
+                <input type="text" id="global-search" class="topnav__search" placeholder="Search devices…"
+                    autocomplete="off" />
+                <div class="search-results" id="search-results"></div>
+            </div>
+            <div class="topnav__clock" id="live-clock"></div>
+            <label class="theme-toggle" for="theme-toggle" aria-label="Toggle theme">
+                <input type="checkbox" id="theme-toggle" class="theme-toggle__input" />
+                <span class="theme-toggle__slider">
+                    <i data-lucide="moon" class="theme-toggle__icon--dark"></i>
+                    <i data-lucide="sun" class="theme-toggle__icon--light"></i>
+                </span>
             </label>
         </div>
-    </header>
+    </nav>
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <nav class="sidebar__nav">
-            <a href="#dashboard" class="nav-link active" data-page="dashboard">
-                <i data-lucide="layout-dashboard"></i><span class="nav-link__text">Dashboard</span>
-            </a>
-            <a href="#analytics" class="nav-link" data-page="analytics">
-                <i data-lucide="bar-chart-3"></i><span class="nav-link__text">Analytics</span>
-            </a>
-            <a href="#devices" class="nav-link" data-page="devices">
-                <i data-lucide="monitor"></i><span class="nav-link__text">Devices</span>
-            </a>
-            <a href="#alerts" class="nav-link" data-page="alerts">
-                <i data-lucide="bell"></i><span class="nav-link__text">Alerts</span>
-                <span class="nav-link__badge" id="alert-badge">0</span>
-            </a>
-            <a href="#settings" class="nav-link" data-page="settings">
-                <i data-lucide="settings"></i><span class="nav-link__text">Settings</span>
-            </a>
-        </nav>
-        <div class="sidebar__footer"><small>&copy; 2026 Shadow Net</small></div>
-    </aside>
-
-    <!-- Main Content (pages injected by JS) -->
+    <!-- Main Content -->
     <main class="main" id="content"></main>
 
-    <!-- Scripts -->
     <script src="engines.js"></script>
     <script src="app.js"></script>
 </body>

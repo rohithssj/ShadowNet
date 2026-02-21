@@ -1,116 +1,241 @@
-// Shadow Net — Engine Layer (Risk, Predictive, Scan, Report)
+// ═══════════════════════════════════════════════════════════════
+// Shadow Net — CENTRAL RISK ENGINE (Single Source of Truth)
+// ═══════════════════════════════════════════════════════════════
+// ALL risk scoring, classification, and metric computation lives
+// here. No other file may perform independent calculations.
+// ═══════════════════════════════════════════════════════════════
+
 const ShadowEngines = (() => {
     const CURRENT_YEAR = new Date().getFullYear();
-    const THRESHOLDS = { CRITICAL: 75, HIGH: 50, MEDIUM: 25 };
-    const DANGEROUS_PROTOCOLS = ['SMBv1', 'TLS1.0', 'FTP', 'Telnet'];
-    const LEGACY_OS_KEYWORDS = ['2003', '2008', 'Windows 7', 'Windows XP'];
-    const IMPACT_RULES = {
-        CRITICAL: ['Domain Controller', 'Firewall Appliance', 'Email Server', 'Finance Application Server'],
-        HIGH: ['Old Database Server', 'HR Management Server', 'Legacy Payroll Server', 'Legacy File Server', 'Old Web Portal Server'],
-        MEDIUM: ['Application Server', 'Backup Server', 'GIS Mapping Server', 'Public WiFi Controller', 'Attendance Logging Server']
-    };
 
-    // Risk scoring based on patch age, uptime, OS, protocols
-    function calculateRiskPercentage(device) {
-        let score = 0;
-        const MAX_SCORE = 14;
-        const yearsSincePatch = CURRENT_YEAR - (device.last_patch_year || CURRENT_YEAR);
-        if (yearsSincePatch >= 10) score += 4;
-        else if (yearsSincePatch >= 7) score += 3;
-        else if (yearsSincePatch >= 4) score += 2;
-        else if (yearsSincePatch >= 2) score += 1;
-        const uptime = device.uptime_days || 0;
-        if (uptime > 1000) score += 3;
-        else if (uptime > 500) score += 2;
-        else if (uptime > 300) score += 1;
-        if (LEGACY_OS_KEYWORDS.some(kw => (device.os || '').toLowerCase().includes(kw.toLowerCase()))) score += 3;
-        if (DANGEROUS_PROTOCOLS.some(dp => (device.protocol || '').includes(dp))) score += 4;
-        return Math.round((score / MAX_SCORE) * 100);
-    }
+    // ─── Device Type Classification Rules ───
+    const deviceTypeRules = [
+        { name: "Domain Controller", ports: [53, 88] },
+        { name: "Legacy Windows Server", ports: [445] },
+        { name: "Network Printer", ports: [9100] },
+        { name: "Linux Server", ports: [22] },
+        { name: "Application Server", ports: [8080, 8081, 8443] },
+        { name: "Backup Server", ports: [21] },
+        { name: "Firewall Appliance", ports: [443] },
+        { name: "CCTV Camera", ports: [554] },
+        { name: "IoT Sensor", ports: [1883] },
+        { name: "Kiosk", ports: [3389] },
+        { name: "Email Server", ports: [25, 110, 143] },
+        { name: "GIS Server", ports: [5432] }
+    ];
 
-    function riskLevelFromPercentage(pct) {
-        if (pct >= THRESHOLDS.CRITICAL) return 'CRITICAL';
-        if (pct >= THRESHOLDS.HIGH) return 'HIGH';
-        if (pct >= THRESHOLDS.MEDIUM) return 'MEDIUM';
-        return 'LOW';
-    }
+    // ─── Internal Helpers ───
 
-    function classifyBusinessImpact(device) {
-        const type = device.device_type || '';
-        for (const [level, types] of Object.entries(IMPACT_RULES)) {
-            if (types.some(t => type.includes(t))) return level;
+    function classifyDeviceType(ports) {
+        for (const rule of deviceTypeRules) {
+            if (rule.ports.every(p => ports.includes(p))) return rule.name;
         }
+        return "Unknown Device";
+    }
+
+    function parsePorts(raw) {
+        if (Array.isArray(raw)) return raw;
+        return String(raw).split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    }
+
+    function computeUptimeRisk(uptimeDays) {
+        if (uptimeDays > 730) return 80;
+        if (uptimeDays > 365) return 50;
+        if (uptimeDays > 180) return 25;
+        return 10;
+    }
+
+    function computePortRisk(ports) {
+        if (ports.some(p => [445, 3389, 21, 139].includes(p))) return 90;
+        if (ports.some(p => [22, 25, 5900].includes(p))) return 60;
+        if (ports.some(p => [443, 3306, 1433].includes(p))) return 40;
+        return 20;
+    }
+
+    function riskLevelFromScore(score) {
+        if (score >= 76) return 'CRITICAL';
+        if (score >= 56) return 'HIGH';
+        if (score >= 31) return 'MEDIUM';
         return 'LOW';
     }
 
-    function isForgotten(device) {
-        return (device.uptime_days || 0) > 700 && (CURRENT_YEAR - (device.last_patch_year || CURRENT_YEAR)) > 5;
+    function inferBusinessImpact(ports) {
+        if (ports.some(p => [443, 3306].includes(p))) return 'CRITICAL';
+        if (ports.some(p => [445, 3389].includes(p))) return 'HIGH';
+        if (ports.some(p => [22, 25].includes(p))) return 'MEDIUM';
+        return 'LOW';
     }
 
-    // Human-readable reasons for risk score
-    function generateReasons(device) {
-        const reasons = [];
-        const yrs = CURRENT_YEAR - (device.last_patch_year || CURRENT_YEAR);
-        if (yrs >= 7) reasons.push(`Not patched in ${yrs} years`);
-        else if (yrs >= 4) reasons.push(`Last patched ${yrs} years ago`);
-        if ((device.uptime_days || 0) > 1000) reasons.push(`Running ${device.uptime_days} days without restart`);
-        else if ((device.uptime_days || 0) > 500) reasons.push(`Uptime ${device.uptime_days} days — infrequent maintenance`);
-        if (LEGACY_OS_KEYWORDS.some(kw => (device.os || '').includes(kw))) reasons.push(`Legacy OS: ${device.os}`);
-        if (DANGEROUS_PROTOCOLS.some(dp => (device.protocol || '').includes(dp))) reasons.push(`Insecure protocol: ${device.protocol}`);
-        if ((device.open_ports || []).length > 3) reasons.push(`${device.open_ports.length} open ports`);
-        if (!reasons.length) reasons.push('Meets baseline security requirements');
-        return reasons;
+    function generateRecommendation(level) {
+        if (level === 'CRITICAL') return 'Immediate patch and isolate';
+        if (level === 'HIGH') return 'Urgent update required';
+        if (level === 'MEDIUM') return 'Monitor and patch soon';
+        return 'Maintain regular updates';
     }
 
-    function generateRecommendation(device, riskLevel, forgotten) {
-        if (riskLevel === 'CRITICAL') return 'IMMEDIATE: Isolate, patch, and run vulnerability assessment.';
-        if (riskLevel === 'HIGH') return 'URGENT: Patch and upgrade protocols within 48 hours.';
-        if (forgotten) return 'REVIEW: Validate necessity — decommission or bring into management.';
-        if (riskLevel === 'MEDIUM') return 'MONITOR: Schedule patching and review open ports.';
-        return 'MAINTAIN: Continue standard monitoring.';
+    // ═══════════════════════════════════════════════════════════
+    // STEP 1 — processDevice(): Computes EVERYTHING for one device
+    // ═══════════════════════════════════════════════════════════
+    function processDevice(device) {
+        const open_ports = parsePorts(device.open_ports || device.port);
+        const uptime_days = parseInt(device.uptime_days || device.uptime) || 0;
+        const last_patch_year = parseInt(device.last_patch_year) || CURRENT_YEAR;
+
+        // 1. Lifecycle Age
+        const lifecycle_age = CURRENT_YEAR - last_patch_year;
+
+        // 2. Normalized component scores (each 0-100)
+        const lifecycle_risk = Math.min((lifecycle_age / 10) * 100, 100);
+        const uptime_risk = computeUptimeRisk(uptime_days);
+        const port_risk = computePortRisk(open_ports);
+
+        // 3. Weighted Risk Score = (Lifecycle × 0.5) + (Uptime × 0.2) + (Port × 0.3)
+        const risk_score = Math.round(
+            (lifecycle_risk * 0.5) + (uptime_risk * 0.2) + (port_risk * 0.3)
+        );
+
+        // 3. Risk Level
+        const risk_level = riskLevelFromScore(risk_score);
+
+        // 4. Forgotten Flag
+        const forgotten = uptime_days > 365 && lifecycle_age > 3;
+
+        // 5. Device Type (inferred from ports)
+        const device_type = classifyDeviceType(open_ports);
+
+        // 6. Business Impact (inferred from ports)
+        const business_impact = inferBusinessImpact(open_ports);
+
+        // 7. Recommendation
+        const recommendation = generateRecommendation(risk_level);
+
+        // 8. Future Risk (projected)
+        const future_risk_score = Math.min(risk_score + (forgotten ? 10 : 5), 100);
+        const future_risk_level = riskLevelFromScore(future_risk_score);
+
+        // 9. Reasons (diagnostic)
+        const reasons = [
+            `Lifecycle Age: ${lifecycle_age} years`,
+            `Uptime: ${uptime_days} days`,
+            `Open Ports: ${open_ports.join(', ')}`
+        ];
+
+        return {
+            ip: device.ip,
+            port: device.port,
+            protocol: device.protocol,
+            last_patch_year,
+            uptime_days,
+            open_ports,
+            lifecycle_age,
+            forgotten,
+            risk_score,
+            risk_percentage: risk_score,   // backward compat
+            risk_level,
+            business_impact,
+            device_type,
+            os: device_type,
+            recommendation,
+            future_risk_percentage: future_risk_score,
+            future_risk_level,
+            reasons,
+            location: device.location || 'Network Scan'
+        };
     }
 
-    // Predictive engine — projects future risk
-    function predictFutureRisk(pct, impact, forgotten) {
-        let future = pct + (forgotten ? 15 : 0) + (impact === 'CRITICAL' ? 10 : 0);
-        future = Math.min(future, 100);
-        return { future_risk_percentage: future, future_risk_level: riskLevelFromPercentage(future) };
+    // ═══════════════════════════════════════════════════════════
+    // STEP 2 — processDataset(): Batch process + global metrics
+    // ═══════════════════════════════════════════════════════════
+    function processDataset(rawDevices) {
+        // Single loop: process every device once
+        const devices = rawDevices.map(d => processDevice(d));
+
+        // Compute global metrics once from processed dataset
+        const report = generateReport(devices);
+
+        return { devices, report };
     }
 
-    // Scan engine — processes all devices through the pipeline
-    function scanNetwork(rawDevices) {
-        return rawDevices.filter(d => d.ip).map(device => {
-            const risk_percentage = calculateRiskPercentage(device);
-            const risk_level = riskLevelFromPercentage(risk_percentage);
-            const business_impact = classifyBusinessImpact(device);
-            const forgotten = isForgotten(device);
-            const reasons = generateReasons(device);
-            const recommendation = generateRecommendation(device, risk_level, forgotten);
-            const pred = predictFutureRisk(risk_percentage, business_impact, forgotten);
-            return {
-                ...device, risk_percentage, risk_level, business_impact, forgotten, reasons, recommendation,
-                future_risk_percentage: pred.future_risk_percentage, future_risk_level: pred.future_risk_level
-            };
-        });
-    }
-
-    // Report engine — summary metrics from processed devices
+    // ═══════════════════════════════════════════════════════════
+    // STEP 3 — generateReport(): Global metrics from processed data
+    // ═══════════════════════════════════════════════════════════
     function generateReport(devices) {
         const total = devices.length;
+        if (total === 0) {
+            return {
+                total: 0,
+                riskDist: { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 },
+                typeDist: {},
+                topCritical: [],
+                securityScore: 100,
+                exposureIndex: 0,
+                systemUptime: 100,
+                activeAlerts: 0,
+                avgResponseTime: 0,
+                forgottenDevices: [],
+                risksMitigated: 0
+            };
+        }
+
         const riskDist = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
-        devices.forEach(d => { riskDist[d.risk_level] = (riskDist[d.risk_level] || 0) + 1; });
         const typeDist = {};
-        devices.forEach(d => { typeDist[d.device_type] = (typeDist[d.device_type] || 0) + 1; });
-        const topCritical = [...devices].sort((a, b) => b.risk_percentage - a.risk_percentage).slice(0, 5);
-        const activeAlerts = devices.filter(d => d.risk_level === 'HIGH' || d.risk_level === 'CRITICAL').length;
-        const forgottenDevices = devices.filter(d => d.forgotten);
-        const securityScore = total > 0 ? Math.round(devices.reduce((s, d) => s + (100 - d.risk_percentage), 0) / total) : 100;
-        const risksMitigated = (riskDist.LOW || 0) + (riskDist.MEDIUM || 0);
-        const responseTimeMap = { LOW: 48, MEDIUM: 24, HIGH: 8, CRITICAL: 2 };
-        const avgResponseTime = total > 0 ? (devices.reduce((s, d) => s + (responseTimeMap[d.risk_level] || 48), 0) / total).toFixed(1) : 0;
-        const systemUptime = total > 0 ? Math.round((devices.filter(d => !d.forgotten).length / total) * 100) : 100;
-        return { total, riskDist, typeDist, topCritical, activeAlerts, forgottenDevices, securityScore, risksMitigated, avgResponseTime, systemUptime };
+        const respTimeMap = { LOW: 48, MEDIUM: 24, HIGH: 8, CRITICAL: 2 };
+
+        let sumInverseRisk = 0;
+        let highCritCount = 0;
+        let forgottenCount = 0;
+        let totalResponseTime = 0;
+
+        // Single pass over already-processed data
+        devices.forEach(d => {
+            riskDist[d.risk_level]++;
+            typeDist[d.device_type] = (typeDist[d.device_type] || 0) + 1;
+            sumInverseRisk += (100 - d.risk_score);
+            if (d.risk_level === 'HIGH' || d.risk_level === 'CRITICAL') highCritCount++;
+            if (d.forgotten) forgottenCount++;
+            totalResponseTime += respTimeMap[d.risk_level];
+        });
+
+        // 6. Security Score = Average(100 - Risk_Score)
+        const securityScore = Math.round(sumInverseRisk / total);
+
+        // 7. Exposure Index = (High + Critical) / Total × 100
+        const exposureIndex = Math.round((highCritCount / total) * 100);
+
+        // 8. System Uptime = (Maintained / Total) × 100
+        const systemUptime = Math.round(((total - forgottenCount) / total) * 100);
+
+        // 9. Avg Response Time
+        const avgResponseTime = (totalResponseTime / total).toFixed(1);
+
+        return {
+            total,
+            riskDist,
+            typeDist,
+            topCritical: [...devices].sort((a, b) => b.risk_score - a.risk_score).slice(0, 5),
+            securityScore,
+            exposureIndex,
+            systemUptime,
+            activeAlerts: highCritCount,
+            avgResponseTime,
+            forgottenDevices: devices.filter(d => d.forgotten),
+            risksMitigated: riskDist.LOW + riskDist.MEDIUM
+        };
     }
 
-    return { scanNetwork, generateReport, predictFutureRisk, calculateRiskPercentage, riskLevelFromPercentage };
+    // ═══════════════════════════════════════════════════════════
+    // Legacy-compat aliases (used by app.js)
+    // ═══════════════════════════════════════════════════════════
+    function scanNetwork(rawDevices) {
+        return rawDevices.map(d => processDevice(d));
+    }
+
+    // ─── Public API ───
+    return {
+        processDevice,
+        processDataset,
+        scanNetwork,
+        generateReport,
+        riskLevelFromScore
+    };
 })();

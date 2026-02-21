@@ -1,43 +1,21 @@
-const CURRENT_YEAR = new Date().getFullYear();
+// ═══════════════════════════════════════════════════════════
+// risk_engine.js — DELEGATES TO CENTRAL ENGINE (engines.js)
+// ═══════════════════════════════════════════════════════════
+// This file no longer contains independent risk logic.
+// All calculations are performed by ShadowEngines.processDevice().
+// ═══════════════════════════════════════════════════════════
 
+/**
+ * Calculate risk for a single device.
+ * Delegates entirely to the central ShadowEngines module.
+ * @param {Object} device - Raw device object
+ * @returns {Object} Fully processed device with risk_score, risk_level, etc.
+ */
 function calculateRisk(device) {
-  let riskScore = 0;
-
-  const yearsSincePatch = CURRENT_YEAR - device.last_patch_year;
-
-  // Patch age
-  if (yearsSincePatch >= 8) {
-    riskScore += 4;
-  } else if (yearsSincePatch >= 4) {
-    riskScore += 2;
-  }
-
-  // Uptime
-  if (device.uptime_days > 1000) {
-    riskScore += 3;
-  } else if (device.uptime_days > 500) {
-    riskScore += 2;
-  }
-
-  // Legacy OS
-  if (
-    device.os.includes("2003") ||
-    device.os.includes("2008") ||
-    device.os.includes("Windows 7")
-  ) {
-    riskScore += 3;
-  }
-
-  // Dangerous protocol
-  if (device.protocol.includes("SMBv1")) {
-    riskScore += 4;
-  }
-
-  // Final classification
-  if (riskScore >= 8) return "CRITICAL";
-  if (riskScore >= 5) return "HIGH";
-  if (riskScore >= 3) return "MEDIUM";
-  return "LOW";
+  return ShadowEngines.processDevice(device);
 }
 
-export default calculateRisk;
+// Node.js / ES module export (if used outside browser)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = calculateRisk;
+}
