@@ -4558,3 +4558,71 @@ body.light-mode {
     .dashboard-col--left, .dashboard-col--mid, .dashboard-col--right { width: 100%; }
     .chart-container--donut { height: 300px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FOOTER STYLING
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.page-footer {
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    margin-top: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.page-footer p {
+    margin: 0.25rem 0;
+}
+
+.page-footer p:first-child {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main {
+    flex: 1;
+}
+
+.upload-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.upload-page-content {
+    flex: 1;
+}
+
+/* Dark mode footer */
+.page-footer {
+    background: rgba(11, 15, 26, 0.6);
+}
+
+/* Light mode footer */
+.light-mode .page-footer {
+    background: rgba(245, 245, 247, 0.8);
+    color: rgba(100, 100, 130, 0.9);
+}
+
+.light-mode .page-footer p:first-child {
+    color: rgba(60, 60, 80, 0.9);
+}
+
+@media (max-width: 768px) {
+    .page-footer {
+        padding: 1.5rem 1rem;
+        font-size: 0.75rem;
+    }
+}

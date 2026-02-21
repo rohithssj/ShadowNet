@@ -62,6 +62,11 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="page-footer">
+        <p>&copy; 2026 ShadowNet</p>
+    </footer>
+
     <script>
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -90,9 +95,9 @@
             submitBtn.innerText = 'Verifying...';
 
             setTimeout(() => {
-                alert('Login successful. Redirecting to dashboard...');
+                alert('Login successful. Let\'s add your devices...');
                 sessionStorage.setItem('logged_in', 'true');
-                window.location.href = 'index.html';
+                window.location.href = 'data-upload.html';
             }, 500);
         });
     </script>

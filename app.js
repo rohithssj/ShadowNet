@@ -33,8 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbar();
     initRouter();
     bindGlobalFeatures();
+    processPendingDevices();
     handleRoute();
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// HANDLE PENDING DEVICES FROM DATA UPLOAD PAGE
+// ═══════════════════════════════════════════════════════════════════════
+
+function processPendingDevices() {
+    if (window.pendingDevice) {
+        calculateDeviceRisk(window.pendingDevice);
+        AppState.devices.push(window.pendingDevice);
+        window.pendingDevice = null;
+    }
+    if (window.pendingDevices && Array.isArray(window.pendingDevices)) {
+        window.pendingDevices.forEach(device => {
+            calculateDeviceRisk(device);
+            AppState.devices.push(device);
+        });
+        window.pendingDevices = null;
+    }
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // THEME MANAGEMENT
@@ -349,6 +369,9 @@ function renderDashboard() {
         <div class="page-header">
             <h2 class="page-header__title"><i data-lucide="layout-dashboard"></i> Security Operations Dashboard</h2>
             <div class="page-header__actions">
+                <button class="btn btn--outline" id="upload-new-data-btn" title="Upload new devices">
+                    <i data-lucide="plus-circle"></i> Upload New Data
+                </button>
                 <button class="btn btn--outline" id="export-pdf" title="Download PDF Report">
                     <i data-lucide="file-down"></i> PDF Report
                 </button>
@@ -434,6 +457,14 @@ function renderDashboard() {
 }
 
 function bindDashboard() {
+    // Upload new data button
+    const uploadNewDataBtn = document.getElementById('upload-new-data-btn');
+    if (uploadNewDataBtn) {
+        uploadNewDataBtn.addEventListener('click', () => {
+            window.location.href = 'data-upload.html';
+        });
+    }
+
     // Skip binding if no devices
     if (!AppState.devices.length) return;
 
@@ -1280,7 +1311,7 @@ function handleFileUpload(file) {
                         protocol: d.protocol.toString(),
                         last_patch_year: parseInt(d.last_patch_year),
                         uptime_days: parseInt(uptimeVal),
-                        device_type: 'File Import',
+                        device_type: d.device_type && d.device_type.toString().trim() ? d.device_type.toString().trim() : 'Unknown Device',
                         risk_score: 0,
                         risk_level: 'MEDIUM',
                         business_impact: 'MEDIUM',

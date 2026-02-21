@@ -1,0 +1,598 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Upload - ShadowNet</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Data Upload Page Specific Styles */
+        .upload-page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        .upload-page-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .upload-card-wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .upload-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .upload-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            font-family: var(--font-heading);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .upload-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .upload-method-tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .upload-method-btn {
+            padding: 0.65rem 1.2rem;
+            border: 2px solid transparent;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all var(--transition);
+            font-family: var(--font-heading);
+        }
+
+        .upload-method-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+
+        .upload-method-btn.active {
+            background: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+        }
+
+        .upload-method-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .upload-method-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Manual Entry Form */
+        .manual-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            transition: border-color var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(0, 255, 150, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .form-actions .btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        /* File Upload Card */
+        .file-upload-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(0, 255, 150, 0.03));
+            border: 2px dashed var(--accent-color);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .file-upload-card:hover {
+            background: linear-gradient(135deg, var(--bg-card), rgba(0, 255, 150, 0.08));
+            border-color: var(--accent-color);
+        }
+
+        .file-upload-card.dragover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, var(--bg-card), rgba(0, 255, 150, 0.12));
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-selected-info {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(0, 255, 150, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .file-selected-info.show {
+            display: block;
+        }
+
+        /* Format Guide */
+        .format-guide {
+            background: rgba(0, 255, 150, 0.05);
+            border-left: 3px solid var(--accent-color);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .format-guide-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .format-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .format-col {
+            background: var(--bg-card);
+            padding: 0.75rem;
+            border-radius: var(--radius-xs);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            border: 1px solid rgba(0, 255, 150, 0.1);
+        }
+
+        .format-example {
+            background: var(--bg-elevated);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            overflow-x: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .upload-page-content {
+                padding: 1rem;
+            }
+
+            .upload-method-tabs {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .upload-method-btn {
+                width: 100%;
+            }
+
+            .manual-form {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-title {
+                font-size: 1.8rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .light-mode .file-upload-card {
+            background: linear-gradient(135deg, #f5f5f7, rgba(0, 255, 150, 0.05));
+        }
+
+        .light-mode .format-guide {
+            background: rgba(0, 255, 150, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-page-container">
+        <div class="upload-page-content">
+            <div class="upload-card-wrapper">
+                <!-- Header -->
+                <div class="upload-header">
+                    <div class="upload-logo">⚡ SHADOWNET</div>
+                    <h1 class="upload-title">Add Your Devices</h1>
+                    <p class="upload-subtitle">Choose how you'd like to add devices to your security analysis</p>
+                </div>
+
+                <!-- Method Selector Tabs -->
+                <div class="upload-method-tabs">
+                    <button class="upload-method-btn active" data-method="manual">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem;">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Manual Entry
+                    </button>
+                    <button class="upload-method-btn" data-method="upload">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload File
+                    </button>
+                </div>
+
+                <!-- Manual Entry Content -->
+                <div class="upload-method-content active" data-method="manual">
+                    <form id="manual-entry-form" class="manual-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="ip">IP Address *</label>
+                                <input type="text" id="ip" name="ip" placeholder="192.168.1.100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="port">Port *</label>
+                                <input type="number" id="port" name="port" placeholder="22" min="1" max="65535" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="protocol">Protocol *</label>
+                                <select id="protocol" name="protocol" required>
+                                    <option value="">Select Protocol</option>
+                                    <option value="TCP">TCP</option>
+                                    <option value="UDP">UDP</option>
+                                    <option value="HTTP">HTTP</option>
+                                    <option value="HTTPS">HTTPS</option>
+                                    <option value="SSH">SSH</option>
+                                    <option value="RDP">RDP</option>
+                                    <option value="FTP">FTP</option>
+                                    <option value="SMTP">SMTP</option>
+                                    <option value="DNS">DNS</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="patch-year">Last Patch Year *</label>
+                                <input type="number" id="patch-year" name="last_patch_year" placeholder="2022" min="2000" max="2099" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="uptime">Uptime (days) *</label>
+                                <input type="number" id="uptime" name="uptime_days" placeholder="365" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem;">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Analyze & Continue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- File Upload Content -->
+                <div class="upload-method-content" data-method="upload">
+                    <div class="file-upload-card" id="file-upload-card">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Drag CSV or Excel file here</div>
+                        <div class="upload-subtext">or click below to browse</div>
+                    </div>
+                    <input type="file" id="file-input" accept=".csv,.xlsx,.xls">
+                    <div style="display:flex; justify-content:center; margin-top:1rem;">
+                        <button type="button" class="btn btn--outline" id="browse-file-btn" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Choose File
+                        </button>
+                    </div>
+                    <div class="file-selected-info" id="file-selected-info"></div>
+
+                    <div class="format-guide">
+                        <div class="format-guide-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            Required CSV / Excel Columns
+                        </div>
+                        <div class="format-columns">
+                            <div class="format-col">ip</div>
+                            <div class="format-col">port</div>
+                            <div class="format-col">protocol</div>
+                            <div class="format-col">last_patch_year</div>
+                            <div class="format-col">uptime</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">Example:</div>
+                            <div class="format-example">
+ip,port,protocol,last_patch_year,uptime<br>
+192.168.1.10,22,TCP,2019,400<br>
+10.0.0.50,443,HTTPS,2023,200<br>
+172.16.0.5,3389,RDP,2020,500
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+            <p>&copy; 2026 ShadowNet</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script>
+        // Check if user is logged in
+        if (!sessionStorage.getItem('logged_in')) {
+            window.location.href = 'login.html';
+        }
+
+        // Theme handling
+        function initTheme() {
+            const isDarkMode = localStorage.getItem('shadownet-dark') !== 'false';
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+            } else {
+                document.body.classList.add('light-mode');
+            }
+            const accentColor = localStorage.getItem('shadownet-accent') || '#00ff96';
+            document.documentElement.style.setProperty('--accent-color', accentColor);
+        }
+        initTheme();
+
+        // Method tab switching
+        document.querySelectorAll('.upload-method-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const method = btn.dataset.method;
+                document.querySelectorAll('.upload-method-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.upload-method-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            });
+        });
+
+        // Manual form submission
+        document.getElementById('manual-entry-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const device = {
+                ip: formData.get('ip'),
+                port: parseInt(formData.get('port')),
+                open_ports: [parseInt(formData.get('port'))],
+                protocol: formData.get('protocol'),
+                last_patch_year: parseInt(formData.get('last_patch_year')),
+                uptime_days: parseInt(formData.get('uptime_days')),
+                device_type: 'Manual Entry'
+            };
+            
+            // Store in AppState via app.js logic (will be called on redirect)
+            window.pendingDevice = device;
+            window.location.href = 'index.html#dashboard';
+        });
+
+        // File upload handling
+        const uploadCard = document.getElementById('file-upload-card');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-selected-info');
+        const browseBtn = document.getElementById('browse-file-btn');
+
+        if (uploadCard && fileInput) {
+            uploadCard.addEventListener('click', () => fileInput.click());
+            if (browseBtn) {
+                browseBtn.addEventListener('click', () => fileInput.click());
+            }
+            
+            uploadCard.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadCard.classList.add('dragover');
+            });
+            
+            uploadCard.addEventListener('dragleave', () => {
+                uploadCard.classList.remove('dragover');
+            });
+            
+            uploadCard.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadCard.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFileSelect(fileInput.files[0]);
+                }
+            });
+        }
+
+        function handleFileSelect(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+                alert('Invalid file format. Please upload CSV or Excel file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    let devices = [];
+                    if (['xlsx', 'xls'].includes(ext)) {
+                        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        devices = XLSX.utils.sheet_to_json(sheet);
+                    } else {
+                        const csv = e.target.result;
+                        devices = Papa.parse(csv, { header: true }).data.filter(row => row.ip);
+                    }
+
+                    if (!devices.length) {
+                        alert('No devices found in file');
+                        return;
+                    }
+
+                    // Validate and process
+                    const validDevices = devices.filter(d => {
+                        const uptimeVal = d.uptime_days || d.uptime;
+                        return d.ip && d.port && d.protocol && d.last_patch_year && uptimeVal;
+                    }).map(d => ({
+                        ip: d.ip.toString(),
+                        port: parseInt(d.port) || 0,
+                        open_ports: [parseInt(d.port) || 0],
+                        protocol: d.protocol.toString(),
+                        last_patch_year: parseInt(d.last_patch_year),
+                        uptime_days: parseInt(d.uptime_days || d.uptime),
+                        device_type: d.device_type && d.device_type.toString().trim() ? d.device_type.toString().trim() : 'Unknown Device'
+                    }));
+
+                    if (!validDevices.length) {
+                        alert('No valid devices found. Ensure all rows have: ip, port, protocol, last_patch_year, uptime');
+                        return;
+                    }
+
+                    fileInfo.innerHTML = `✓ ${validDevices.length} device(s) ready to import`;
+                    fileInfo.classList.add('show');
+
+                    // Store devices and redirect to dashboard
+                    window.pendingDevices = validDevices;
+                    setTimeout(() => {
+                        window.location.href = 'index.html#dashboard';
+                    }, 800);
+                } catch (err) {
+                    alert('Error parsing file: ' + err.message);
+                }
+            };
+
+            if (['xlsx', 'xls'].includes(ext)) {
+                reader.readAsBinaryString(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html> -->
