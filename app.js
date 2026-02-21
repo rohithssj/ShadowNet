@@ -363,61 +363,37 @@ function renderDashboard() {
             </div>
         </div>
 
-        <!-- Risk Distribution Donut + Exposure Index -->
-        <div class="dashboard-grid-2col">
-            <div class="chart-card">
-                <h3 class="section-title"><i data-lucide="pie-chart"></i> Risk Distribution</h3>
-                <div style="position:relative;height:280px;">
-                    <canvas id="chart-risk-distribution"></canvas>
-                    <div class="chart-center-summary" id="donut-summary">
-                        <div class="summary-value">${report.total}</div>
-                        <div class="summary-label">Devices</div>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-card">
-                <h3 class="section-title"><i data-lucide="trending-up"></i> High Risk Exposure Index</h3>
-                <div class="exposure-index">
-                    <div class="exposure-bar-container">
-                        <div class="exposure-bar" style="height: ${exposureIndex}%;"></div>
-                    </div>
-                    <div class="exposure-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">High + Critical</span>
-                            <span class="stat-value">${highCriticalPct}%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Critical Devices</span>
-                            <span class="stat-value stat-critical">${report.critical}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">High Risk</span>
-                            <span class="stat-value stat-high">${report.high}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Risk Threshold</span>
-                            <span class="stat-value">${AppState.settings.riskThreshold}%</span>
+        <!-- Risk Distribution | Device Composition | Top 5 Critical Devices (Row) -->
+        <div class="dashboard-row">
+            <div class="dashboard-col dashboard-col--left">
+                <div class="chart-card">
+                    <h3 class="section-title"><i data-lucide="pie-chart"></i> Risk Distribution</h3>
+                    <div class="chart-container chart-container--donut" style="position:relative;">
+                        <canvas id="chart-risk-distribution"></canvas>
+                        <div class="chart-center-summary" id="donut-summary">
+                            <div class="summary-value">${report.total}</div>
+                            <div class="summary-label">Devices</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Device Type Distribution -->
-        <div class="dashboard-grid-full">
-            <div class="chart-card">
-                <h3 class="section-title"><i data-lucide="bar-chart-3"></i> Device Type Distribution</h3>
-                <canvas id="chart-device-types" style="max-height:200px;"></canvas>
+            <div class="dashboard-col dashboard-col--mid">
+                <div class="chart-card">
+                    <h3 class="section-title"><i data-lucide="bar-chart-3"></i> Device Composition</h3>
+                    <div class="chart-container chart-container--mid">
+                        <canvas id="chart-device-types"></canvas>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Top Critical Devices -->
-        <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Top Critical Devices</h3>
-        <div class="critical-devices-grid">
-            ${topCritical.map((d, i) => `
-                <div class="crit-device-card crit-device-card--${d.risk_level.toLowerCase()}">
-                    <div class="crit-device-card__header">
-                        <span class="crit-device-card__ip">${d.ip}</span>
+            <div class="dashboard-col dashboard-col--right">
+                <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Top Critical Devices</h3>
+                <div class="critical-devices-grid">
+                    ${topCritical.map((d, i) => `
+                        <div class="crit-device-card crit-device-card--${d.risk_level.toLowerCase()}">
+                            <div class="crit-device-card__header">
+                                <span class="crit-device-card__ip">${d.ip}</span>
                         <span class="risk-badge risk-badge--${d.risk_level.toLowerCase()}">${d.risk_level}</span>
                     </div>
                     <div class="crit-device-card__score">${d.risk_score}%</div>
@@ -494,7 +470,6 @@ function renderAnalytics() {
 
     const report = generateReport();
     const legacyRisk = calculateLegacyRisk();
-    const impactInsight = getImpactInsight();
 
     return `
         <div class="page-header">
@@ -524,28 +499,29 @@ function renderAnalytics() {
             </div>
         </div>
 
-        <!-- Risk Breakdown by Business Impact -->
-        <div class="analytics-grid-2col">
-            <div class="chart-card">
-                <h3 class="section-title"><i data-lucide="layers"></i> Risk Breakdown by Business Impact</h3>
+        <!-- Risk by Business Impact (Full Width) -->
+        <div class="chart-card chart-card--large">
+            <h3 class="section-title"><i data-lucide="layers"></i> Risk by Business Impact</h3>
+            <div class="chart-container chart-container--large">
+                <div class="analytics-summary" style="display:flex;gap:16px;align-items:center;margin-bottom:12px;">
+                    <div class="summary-panel">
+                        <strong>Highest Impact:</strong> ${report.highestImpact || 'N/A'}
+                    </div>
+                    <div class="summary-panel">
+                        <strong>% Critical in High Impact:</strong> ${report.percentCriticalInHigh || 0}%
+                    </div>
+                </div>
                 <canvas id="chart-impact-breakdown"></canvas>
-            </div>
-            <div class="insight-card">
-                <h4 class="insight-title"><i data-lucide="lightbulb"></i> Impact Insight</h4>
-                <p class="insight-text">${impactInsight}</p>
             </div>
         </div>
 
-        <!-- Lifecycle Risk Correlation -->
-        <div class="analytics-grid-2col">
-            <div class="chart-card">
-                <h3 class="section-title"><i data-lucide="cpu"></i> Lifecycle Risk Correlation</h3>
+        <!-- Lifecycle Risk Correlation (Large) -->
+        <div class="chart-card chart-card--large">
+            <h3 class="section-title"><i data-lucide="cpu"></i> Lifecycle Risk Correlation</h3>
+            <div class="chart-container chart-container--large">
                 <canvas id="chart-lifecycle-correlation"></canvas>
             </div>
-            <div class="insight-card">
-                <h4 class="insight-title"><i data-lucide="alert-circle"></i> Legacy Risk</h4>
-                <p class="insight-text">Legacy systems have <strong>${legacyRisk.avgRisk}% average risk</strong> vs <strong>${legacyRisk.modernRisk}%</strong> for modern systems. Immediate modernization recommended.</p>
-            </div>
+            <p class="insight-text" style="margin-top:12px;">Forgotten systems show <strong>${legacyRisk && legacyRisk.deltaPercent ? legacyRisk.deltaPercent : 0}%</strong> higher average risk.</p>
         </div>
 
         <!-- Current vs Projected Risk Trend -->
@@ -1522,7 +1498,7 @@ function drawRiskDistributionDonutChart() {
     AppState.chartInstances.riskDist = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: labels.map((l, i) => `${l}\n${percentages[i]}%`),
+            labels: labels,
             datasets: [{
                 data: data,
                 backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'],
@@ -1533,19 +1509,24 @@ function drawRiskDistributionDonutChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            radius: '80%',
-            innerRadius: '55%',
+            cutout: '60%',
             plugins: {
                 legend: {
                     position: 'right',
+                    align: 'center',
                     labels: {
                         font: { size: 12 },
-                        padding: 15
+                        padding: 10,
+                        boxWidth: 12
                     }
                 },
                 tooltip: {
                     callbacks: {
-                        label: (context) => `${context.label.split('\n')[0]}: ${context.parsed} devices`
+                        label: (context) => {
+                            const val = context.parsed || 0;
+                            const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+                            return `${context.label}: ${val} devices (${pct}%)`;
+                        }
                     }
                 }
             }
@@ -1569,8 +1550,10 @@ function drawDeviceTypesChart() {
     if (!ctx) return;
 
     const report = generateReport();
-    const types = Object.keys(report.deviceTypes).slice(0, 8);
-    const counts = types.map(t => report.deviceTypes[t]);
+    const sortedTypes = Object.entries(report.deviceTypes || {}).sort((a,b) => b[1] - a[1]);
+    const top = sortedTypes.slice(0, 8);
+    const types = top.map(t => t[0]);
+    const counts = top.map(t => t[1]);
 
     AppState.chartInstances.deviceTypes = new Chart(ctx, {
         type: 'bar',
@@ -1628,13 +1611,13 @@ function drawImpactBreakdownChart() {
         },
         options: {
             responsive: true,
-            indexAxis: 'y',
+            maintainAspectRatio: false,
             scales: {
                 x: { stacked: true, beginAtZero: true },
                 y: { stacked: true }
             },
             plugins: {
-                legend: { position: 'top' }
+                legend: { position: 'bottom', labels: { padding: 12 } }
             }
         }
     });
@@ -1649,22 +1632,23 @@ function drawLifecycleCorrelationChart() {
     AppState.chartInstances.lifecycleCorr = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Legacy (5+ yrs)', 'Modern (<3 yrs)'],
+            labels: ['Forgotten (5+ yrs)', 'Maintained (<3 yrs)'],
             datasets: [{
-                label: 'Average Risk Score',
+                label: 'Average Risk %',
                 data: [legacyData.legacy, legacyData.modern],
                 backgroundColor: ['#ef4444', '#22c55e'],
-                borderRadius: 4
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
-            indexAxis: 'y',
+            maintainAspectRatio: false,
             scales: {
-                x: { beginAtZero: true, max: 100 }
+                y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
             },
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}% (${ctx.raw}%)` } }
             }
         }
     });

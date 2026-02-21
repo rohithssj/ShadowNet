@@ -4605,3 +4605,34 @@ body.light-mode {
     color: var(--text-primary);
     white-space: nowrap;
 }
+
+/* Dashboard three-column row */
+.dashboard-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+.dashboard-col { background: transparent; }
+.dashboard-col--left { width: 40%; }
+.dashboard-col--mid { width: 45%; }
+.dashboard-col--right { width: 15%; }
+
+.chart-container { width: 100%; }
+.chart-container--donut { height: 350px; display:flex; align-items:center; justify-content:center; }
+.chart-container--mid { height: 320px; }
+
+/* Analytics larger chart variants */
+.chart-card--large { padding: 18px; margin-bottom: 18px; }
+.chart-container--large { height: 420px; position: relative; }
+.chart-card.chart-card--full canvas, .chart-card--large canvas { width: 100% !important; }
+
+/* Ensure legends wrap and have spacing */
+.chart-card .chartjs-render-monitor { max-width: 100%; }
+.chart-card .legend-wrap { white-space: normal; }
+
+@media (max-width: 900px) {
+    .dashboard-row { flex-direction: column; }
+    .dashboard-col--left, .dashboard-col--mid, .dashboard-col--right { width: 100%; }
+    .chart-container--donut { height: 300px; }
+}
