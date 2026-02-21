@@ -315,6 +315,35 @@ function renderDashboard() {
     const topCritical = report.topCritical.slice(0, 5);
     const highCriticalPct = Math.round(((report.critical + report.high) / report.total) * 100);
     const exposureIndex = Math.round(((report.critical + report.high) / report.total) * 100);
+    // Build Top Critical HTML with dynamic severity classes based on risk percentage
+    const topCriticalHtml = topCritical.map((d, i) => {
+        const p = parseInt(d.risk_score ?? d.risk_percentage ?? 0, 10) || 0;
+        let cls = 'card-low';
+        let badge = 'Low';
+        if (p >= 90) { cls = 'card-severe'; badge = 'Severe'; }
+        else if (p >= 75) { cls = 'card-high-critical'; badge = 'High Critical'; }
+        else if (p >= 60) { cls = 'card-high'; badge = 'High'; }
+        else if (p >= 40) { cls = 'card-medium'; badge = 'Medium'; }
+
+        return `
+            <div class="crit-device-card ${cls}">
+                <div class="crit-device-card__body">
+                    <div class="crit-device-card__header">
+                        <span class="crit-device-card__ip">${d.ip}</span>
+                        <span class="severity-badge">${badge}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                        <div class="crit-device-card__score" style="font-size:1.6rem;font-weight:800;color:var(--text-primary);">${p}%</div>
+                        <div style="flex:1;margin-left:8px;">
+                            <div class="severity-bar"><div class="severity-fill ${cls}" style="width:${p}%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="crit-device-card__type">${d.device_type}</div>
+                    <div class="crit-device-card__recommendation">${d.recommendation}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
 
     return `
         <div class="page-header">
@@ -390,17 +419,9 @@ function renderDashboard() {
             <div class="dashboard-col dashboard-col--right">
                 <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Top Critical Devices</h3>
                 <div class="critical-devices-grid">
-                    ${topCritical.map((d, i) => `
-                        <div class="crit-device-card crit-device-card--${d.risk_level.toLowerCase()}">
-                            <div class="crit-device-card__header">
-                                <span class="crit-device-card__ip">${d.ip}</span>
-                        <span class="risk-badge risk-badge--${d.risk_level.toLowerCase()}">${d.risk_level}</span>
-                    </div>
-                    <div class="crit-device-card__score">${d.risk_score}%</div>
-                    <div class="crit-device-card__type">${d.device_type}</div>
-                    <div class="crit-device-card__recommendation">${d.recommendation}</div>
+                    ${topCriticalHtml}
                 </div>
-            `).join('')}
+            </div>
         </div>
     `;
 }

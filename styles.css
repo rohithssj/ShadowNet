@@ -2841,6 +2841,36 @@ body.light-mode .data-table thead th {
     flex-wrap: wrap
 }
 
+/* Severity classes for Top Critical Devices */
+.card-severe { background: linear-gradient(135deg, rgba(190,18,60,0.12), rgba(190,18,60,0.04)); border: 1px solid rgba(190,18,60,0.18); box-shadow: 0 8px 24px rgba(190,18,60,0.25); }
+.card-high-critical { background: linear-gradient(135deg, rgba(244,63,9,0.08), rgba(244,63,9,0.03)); border: 1px solid rgba(244,63,9,0.14); }
+.card-high { background: linear-gradient(135deg, rgba(249,115,22,0.07), rgba(249,115,22,0.02)); border: 1px solid rgba(249,115,22,0.12); }
+.card-medium { background: linear-gradient(135deg, rgba(234,179,8,0.06), rgba(234,179,8,0.02)); border: 1px solid rgba(234,179,8,0.10); }
+.card-low { background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02)); border: 1px solid rgba(34,197,94,0.08); }
+
+.card-severe .crit-device-card__score, .card-high-critical .crit-device-card__score, .card-high .crit-device-card__score { color: #fff; }
+.card-medium .crit-device-card__score, .card-low .crit-device-card__score { color: var(--text-primary); }
+
+.severity-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 999px; font-weight:700; color: #fff; }
+.card-severe .severity-badge { background:#7f1d1d; box-shadow: 0 0 18px rgba(190,18,60,0.25); }
+.card-high-critical .severity-badge { background:#c2410c; }
+.card-high .severity-badge { background:#ea580c; }
+.card-medium .severity-badge { background:#a16207; color:#fff; }
+.card-low .severity-badge { background:#166534; }
+
+.severity-bar { width:100%; height:8px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow:hidden; }
+.severity-fill { height:100%; border-radius:6px; }
+.severity-fill.card-severe { background: linear-gradient(90deg,#ef4444,#b91c1c); box-shadow: 0 4px 14px rgba(239,68,68,0.25); }
+.severity-fill.card-high-critical { background: linear-gradient(90deg,#f97316,#dc5800); }
+.severity-fill.card-high { background: linear-gradient(90deg,#f59e0b,#d97706); }
+.severity-fill.card-medium { background: linear-gradient(90deg,#facc15,#d4b400); }
+.severity-fill.card-low { background: linear-gradient(90deg,#22c55e,#16a34a); }
+
+/* Glow and pulse for severe */
+.card-severe { position: relative; }
+.card-severe::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow: 0 8px 40px rgba(190,18,60,0.18); pointer-events:none; }
+.card-severe { animation: crit-pulse 2s infinite; }
+
 .crit-device-card__type {
     font-size: 0.7rem;
     color: var(--text-muted);
