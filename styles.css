@@ -904,61 +904,7 @@ textarea {
     max-height: 300px
 }
 
-/* === HEATMAP === */
-.heatmap-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 5px;
-    margin-bottom: 2rem
-}
-
-.heatmap-cell {
-    padding: 0.45rem 0.35rem;
-    border-radius: var(--radius-xs);
-    text-align: center;
-    font-size: 0.65rem;
-    font-weight: 600;
-    transition: transform var(--transition);
-    cursor: default;
-    font-family: var(--font-mono)
-}
-
-.heatmap-cell:hover {
-    transform: scale(1.08)
-}
-
-.heatmap-cell__ip {
-    font-weight: 700;
-    font-size: 0.7rem
-}
-
-.heatmap-cell__pct {
-    opacity: 0.85;
-    margin-top: 1px
-}
-
-.heatmap-legend {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-family: var(--font-mono)
-}
-
-.heatmap-legend__scale {
-    display: flex;
-    height: 10px;
-    border-radius: 3px;
-    overflow: hidden;
-    flex: 1;
-    max-width: 250px
-}
-
-.heatmap-legend__segment {
-    flex: 1
-}
+/* Heatmap removed */
 
 /* === TABLES === */
 .table-wrapper {
@@ -2102,68 +2048,7 @@ body.light-mode .data-table thead th {
     border: 1px solid rgba(34, 197, 94, 0.25)
 }
 
-/* === HEAT MATRIX === */
-.heat-matrix-wrapper {
-    overflow-x: auto;
-    margin-bottom: 2rem;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    backdrop-filter: blur(10px)
-}
-
-.heat-matrix {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.78rem
-}
-
-.heat-matrix thead th {
-    padding: 0.75rem 0.8rem;
-    text-align: center;
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    background: rgba(11, 15, 26, 0.6);
-    border-bottom: 1px solid var(--border)
-}
-
-.heat-matrix thead th:first-child {
-    text-align: left
-}
-
-.heat-matrix tbody td {
-    padding: 0.6rem 0.8rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-secondary)
-}
-
-.heat-matrix tbody td:first-child {
-    text-align: left
-}
-
-.heat-matrix tbody tr:last-child td {
-    border-bottom: none
-}
-
-.heat-matrix tbody tr:hover {
-    background: var(--bg-table-hover)
-}
-
-.heat-cell {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-xs);
-    font-family: var(--font-mono);
-    font-size: 0.72rem
-}
+/* Heatmap removed */
 
 /* === SPLIT PANEL (Donut + Exposure) === */
 .split-panel {
@@ -2866,34 +2751,34 @@ body.light-mode .data-table thead th {
 }
 
 /* Severity classes for Top Critical Devices */
-.card-severe { background: linear-gradient(135deg, rgba(190,18,60,0.12), rgba(190,18,60,0.04)); border: 1px solid rgba(190,18,60,0.18); box-shadow: 0 8px 24px rgba(190,18,60,0.25); }
-.card-high-critical { background: linear-gradient(135deg, rgba(244,63,9,0.08), rgba(244,63,9,0.03)); border: 1px solid rgba(244,63,9,0.14); }
-.card-high { background: linear-gradient(135deg, rgba(249,115,22,0.07), rgba(249,115,22,0.02)); border: 1px solid rgba(249,115,22,0.12); }
+.card-severe, .critical-max { background: linear-gradient(135deg, rgba(190,18,60,0.12), rgba(190,18,60,0.04)); border: 1px solid rgba(190,18,60,0.18); box-shadow: 0 8px 24px rgba(190,18,60,0.25); }
+.card-high-critical, .critical-high { background: linear-gradient(135deg, rgba(244,63,9,0.08), rgba(244,63,9,0.03)); border: 1px solid rgba(244,63,9,0.14); }
+.card-high, .critical-medium { background: linear-gradient(135deg, rgba(249,115,22,0.07), rgba(249,115,22,0.02)); border: 1px solid rgba(249,115,22,0.12); }
 .card-medium { background: linear-gradient(135deg, rgba(234,179,8,0.06), rgba(234,179,8,0.02)); border: 1px solid rgba(234,179,8,0.10); }
-.card-low { background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02)); border: 1px solid rgba(34,197,94,0.08); }
+.card-low, .critical-low { background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02)); border: 1px solid rgba(34,197,94,0.08); }
 
-.card-severe .crit-device-card__score, .card-high-critical .crit-device-card__score, .card-high .crit-device-card__score { color: #fff; }
-.card-medium .crit-device-card__score, .card-low .crit-device-card__score { color: var(--text-primary); }
+.card-severe .crit-device-card__score, .card-high-critical .crit-device-card__score, .card-high .crit-device-card__score, .critical-max .crit-device-card__score, .critical-high .crit-device-card__score, .critical-medium .crit-device-card__score { color: #fff; }
+.card-medium .crit-device-card__score, .card-low .crit-device-card__score, .critical-low .crit-device-card__score { color: var(--text-primary); }
 
 .severity-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 999px; font-weight:700; color: #fff; }
-.card-severe .severity-badge { background:#7f1d1d; box-shadow: 0 0 18px rgba(190,18,60,0.25); }
-.card-high-critical .severity-badge { background:#c2410c; }
-.card-high .severity-badge { background:#ea580c; }
+.card-severe .severity-badge, .critical-max .severity-badge { background:#7f1d1d; box-shadow: 0 0 18px rgba(190,18,60,0.25); }
+.card-high-critical .severity-badge, .critical-high .severity-badge { background:#c2410c; }
+.card-high .severity-badge, .critical-medium .severity-badge { background:#ea580c; }
 .card-medium .severity-badge { background:#a16207; color:#fff; }
-.card-low .severity-badge { background:#166534; }
+.card-low .severity-badge, .critical-low .severity-badge { background:#166534; }
 
 .severity-bar { width:100%; height:8px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow:hidden; }
 .severity-fill { height:100%; border-radius:6px; }
-.severity-fill.card-severe { background: linear-gradient(90deg,#ef4444,#b91c1c); box-shadow: 0 4px 14px rgba(239,68,68,0.25); }
-.severity-fill.card-high-critical { background: linear-gradient(90deg,#f97316,#dc5800); }
-.severity-fill.card-high { background: linear-gradient(90deg,#f59e0b,#d97706); }
+.severity-fill.card-severe, .severity-fill.critical-max { background: linear-gradient(90deg,#ef4444,#b91c1c); box-shadow: 0 4px 14px rgba(239,68,68,0.25); }
+.severity-fill.card-high-critical, .severity-fill.critical-high { background: linear-gradient(90deg,#f97316,#dc5800); }
+.severity-fill.card-high, .severity-fill.critical-medium { background: linear-gradient(90deg,#f59e0b,#d97706); }
 .severity-fill.card-medium { background: linear-gradient(90deg,#facc15,#d4b400); }
-.severity-fill.card-low { background: linear-gradient(90deg,#22c55e,#16a34a); }
+.severity-fill.card-low, .severity-fill.critical-low { background: linear-gradient(90deg,#22c55e,#16a34a); }
 
 /* Glow and pulse for severe */
-.card-severe { position: relative; }
-.card-severe::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow: 0 8px 40px rgba(190,18,60,0.18); pointer-events:none; }
-.card-severe { animation: crit-pulse 2s infinite; }
+.card-severe, .critical-max { position: relative; }
+.card-severe::after, .critical-max::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow: 0 8px 40px rgba(190,18,60,0.18); pointer-events:none; }
+.card-severe, .critical-max { animation: crit-pulse 2s infinite; }
 
 .crit-device-card__type {
     font-size: 0.7rem;
@@ -4084,35 +3969,7 @@ body.light-mode .right-section {
     to { opacity: 1; }
 }
 
-/* Risk Heatmap */
-.risk-heatmap {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
-    gap: 4px;
-    padding: 20px;
-    background: var(--bg-elevated);
-    border-radius: var(--radius-sm);
-    max-height: 120px;
-    overflow-y: auto;
-}
-
-.heatmap-cell {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all var(--transition);
-}
-
-.heatmap-cell:hover {
-    transform: scale(1.2);
-    filter: brightness(1.2);
-}
-
-.heatmap-critical { background: #ef4444; }
-.heatmap-high { background: #f97316; }
-.heatmap-medium { background: #eab308; }
-.heatmap-low { background: #22c55e; }
+/* Heatmap removed */
 
 /* Critical Devices Grid */
 .critical-devices-grid {
