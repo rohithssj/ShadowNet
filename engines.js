@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// Shadow Net — CENTRAL RISK ENGINE (Single Source of Truth)
+// ShadowNet — CENTRAL RISK ENGINE (Single Source of Truth)
 // ═══════════════════════════════════════════════════════════════
 // ALL risk scoring, classification, and metric computation lives
 // here. No other file may perform independent calculations.
@@ -113,12 +113,23 @@ const ShadowEngines = (() => {
         const future_risk_score = Math.min(risk_score + (forgotten ? 10 : 5), 100);
         const future_risk_level = riskLevelFromScore(future_risk_score);
 
-        // 9. Reasons (diagnostic)
-        const reasons = [
-            `Lifecycle Age: ${lifecycle_age} years`,
-            `Uptime: ${uptime_days} days`,
-            `Open Ports: ${open_ports.join(', ')}`
-        ];
+        // 9. Reasons (dynamic and descriptive)
+        const dynamicReasons = [];
+        if (risk_level === 'CRITICAL' || risk_level === 'HIGH') {
+            if (lifecycle_age >= 5) dynamicReasons.push(`Device has not been patched in ${lifecycle_age} years.`);
+            else if (lifecycle_age >= 3) dynamicReasons.push("Moderate patch age detected.");
+
+            if (port_risk >= 90) dynamicReasons.push("Exposed high-risk port (445/3389/21/139) detected.");
+            else if (port_risk >= 60) dynamicReasons.push("Sensitive service exposed on network.");
+
+            if (uptime_days > 730) dynamicReasons.push(`Extreme uptime detected: ${uptime_days} days without reboot.`);
+            else if (uptime_days > 365) dynamicReasons.push("Extended uptime increases system instability risk.");
+        } else {
+            if (lifecycle_age < 2) dynamicReasons.push("Recently patched and maintained.");
+            if (port_risk <= 40) dynamicReasons.push("Low-risk port exposure profile.");
+            if (uptime_days <= 180) dynamicReasons.push("System follows regular maintenance cycle.");
+        }
+        if (dynamicReasons.length === 0) dynamicReasons.push("No significant risks identified in current scan.");
 
         return {
             ip: device.ip,
@@ -128,9 +139,12 @@ const ShadowEngines = (() => {
             uptime_days,
             open_ports,
             lifecycle_age,
+            lifecycle_risk,
+            uptime_risk,
+            port_risk,
             forgotten,
             risk_score,
-            risk_percentage: risk_score,   // backward compat
+            risk_percentage: risk_score,
             risk_level,
             business_impact,
             device_type,
@@ -138,7 +152,7 @@ const ShadowEngines = (() => {
             recommendation,
             future_risk_percentage: future_risk_score,
             future_risk_level,
-            reasons,
+            reasons: dynamicReasons,
             location: device.location || 'Network Scan'
         };
     }

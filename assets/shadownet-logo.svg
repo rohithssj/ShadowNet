@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+    <!-- Outer Shield Body -->
+    <path d="M50 8 C70 8 85 18 85 45 C85 75 50 92 50 92 C50 92 15 75 15 45 C15 18 30 8 50 8 Z" fill="#0B1437" stroke="#06B6D4" stroke-width="1.5"/>
+    
+    <!-- Glossy Layer on Shield -->
+    <path d="M50 10 C65 10 82 18 82 45 C82 55 75 65 60 75 C45 85 50 88 50 88 C50 88 18 70 18 45 C18 20 35 10 50 10 Z" fill="white" opacity="0.03"/>
+
+    <!-- Central Cyber Eye -->
+    <path d="M28 45 C28 45 38 32 50 32 C62 32 72 45 72 45 C72 45 62 58 50 58 C38 58 28 45 28 45 Z" fill="#06B6D4" opacity="0.9"/>
+    <circle cx="50" cy="45" r="8.5" fill="#0B1437" stroke="#06B6D4" stroke-width="0.5"/>
+    <circle cx="52.5" cy="42.5" r="3" fill="white" opacity="0.6"/>
+    
+    <!-- Tech Infrastructure (Circuit Lines) -->
+    <g stroke="#06B6D4" stroke-width="0.8" opacity="0.7">
+        <!-- Top -->
+        <path d="M50 32 V15 M43 33 L35 22 M57 33 L65 22" />
+        <!-- Bottom -->
+        <path d="M50 58 V78 M43 57 L35 68 M57 57 L65 68" />
+        <!-- Sides -->
+        <path d="M28 45 H18 M72 45 H82" />
+    </g>
+
+    <!-- Pulsing Logic Nodes (Circuit Points) -->
+    <g fill="#06B6D4">
+        <circle cx="50" cy="15" r="1.5">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="35" cy="22" r="1.5">
+            <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="65" cy="22" r="1.5">
+            <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="18" cy="45" r="1.5">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="82" cy="45" r="1.5">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="78" r="1.5">
+            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="35" cy="68" r="1.5">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="65" cy="68" r="1.5">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+    </g>
+</svg>

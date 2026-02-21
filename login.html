@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowNet — Secure Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="auth-page-body">
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <div class="auth-container">
+        <!-- BRANDING PANEL -->
+        <div class="left-section">
+            <div class="logo-wrapper">
+                <img src="assets/shadownet_logo_official.png" alt="ShadowNet Logo" class="logo-img">
+                <h1 class="logo-text">Shadow<span>Net</span></h1>
+            </div>
+
+            <div class="security-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                SOC Authentication Portal
+            </div>
+
+            <p class="tagline">Secure Network Intelligence Platform</p>
+        </div>
+
+        <!-- FORM CONTAINER -->
+        <div class="right-section">
+            <div class="auth-form-header">
+                <h2>Welcome Back</h2>
+                <p>Please enter your credentials to access the SOC terminal.</p>
+            </div>
+
+            <form class="auth-form" id="login-form">
+                <div class="auth-input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="auth-input" placeholder="EMAIL" required>
+                </div>
+
+                <div class="auth-input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="auth-input" placeholder="••••••••••••" required>
+                </div>
+
+                <button type="submit" class="btn--auth">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an access key? <a href="register.html" class="auth-link">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const submitBtn = e.target.querySelector('button');
+
+            // Validate fields
+            if (!email || !password) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                alert('Please enter a valid email.');
+                return;
+            }
+
+            if (password.length < 4) {
+                alert('Password must be at least 4 characters.');
+                return;
+            }
+
+            // Show success message and redirect
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Verifying...';
+
+            setTimeout(() => {
+                alert('Login successful. Redirecting to dashboard...');
+                sessionStorage.setItem('logged_in', 'true');
+                window.location.href = 'index.html';
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
