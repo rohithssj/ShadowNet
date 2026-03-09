@@ -1,0 +1,29 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+
+# Allow direct access to all HTML pages — do NOT rewrite them to index.html
+[[redirects]]
+  from = "/login.html"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/data-upload.html"
+  to = "/data-upload.html"
+  status = 200
+
+[[redirects]]
+  from = "/register.html"
+  to = "/register.html"
+  status = 200
+
+[[redirects]]
+  from = "/index.html"
+  to = "/index.html"
+  status = 200

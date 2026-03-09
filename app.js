@@ -29,6 +29,18 @@ const AppState = {
 // ═══════════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Guard: if no dataset exists, redirect to data-upload page
+    const hasDevices = localStorage.getItem('shadownet_devices');
+    const isLoggedIn = sessionStorage.getItem('logged_in');
+    if (!hasDevices && !isLoggedIn) {
+        window.location.href = 'login.html';
+        return;
+    }
+    if (!hasDevices && isLoggedIn) {
+        window.location.href = 'data-upload.html';
+        return;
+    }
+
     initTheme();
     initNavbar();
     initRouter();
