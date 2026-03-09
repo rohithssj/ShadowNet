@@ -19,8 +19,8 @@ const AppState = {
         adminName: 'SOC Admin',
         organization: 'ShadowNet HQ',
         role: 'Security Analyst',
-        darkMode: localStorage.getItem('shadownet-dark') === 'true',
-        accentColor: localStorage.getItem('shadownet-accent') || '#00ff96'
+        darkMode: sessionStorage.getItem('shadownet-dark') === 'true',
+        accentColor: sessionStorage.getItem('shadownet-accent') || '#00ff96'
     }
 };
 
@@ -30,7 +30,7 @@ const AppState = {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Guard: if no dataset exists, redirect to data-upload page
-    const hasDevices = localStorage.getItem('shadownet_devices');
+    const hasDevices = sessionStorage.getItem('shadownet_devices');
     const isLoggedIn = sessionStorage.getItem('logged_in');
     if (!hasDevices && !isLoggedIn) {
         window.location.href = 'login.html';
@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════════════════════════════════
 
 function processPendingDevices() {
-    // Load devices from localStorage (persisted by data-upload page)
-    const savedDevices = localStorage.getItem('shadownet_devices');
+    // Load devices from sessionStorage (persisted by data-upload page)
+    const savedDevices = sessionStorage.getItem('shadownet_devices');
     if (savedDevices) {
         try {
             const devices = JSON.parse(savedDevices);
@@ -76,30 +76,11 @@ function processPendingDevices() {
 // ═══════════════════════════════════════════════════════════════════════
 
 function initTheme() {
-    const toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
-
-    // Apply saved theme
-    if (!AppState.settings.darkMode) {
-        document.body.classList.add('light-mode');
-        toggle.checked = true;
-    } else {
-        document.body.classList.remove('light-mode');
-        toggle.checked = false;
-    }
+    // Always dark mode — remove any light-mode class
+    document.body.classList.remove('light-mode');
 
     // Apply accent color
     document.documentElement.style.setProperty('--accent-color', AppState.settings.accentColor);
-
-    toggle.addEventListener('change', (e) => {
-        AppState.settings.darkMode = !e.target.checked;
-        if (e.target.checked) {
-            document.body.classList.add('light-mode');
-        } else {
-            document.body.classList.remove('light-mode');
-        }
-        localStorage.setItem('shadownet-dark', AppState.settings.darkMode);
-    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -120,6 +101,15 @@ function initNavbar() {
     if (navLinks) {
         navLinks.querySelectorAll('.topnav__link').forEach(link => {
             link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // Close mobile nav when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('open') &&
+                !navLinks.contains(e.target) &&
+                !hamburger?.contains(e.target)) {
+                navLinks.classList.remove('open');
+            }
         });
     }
 
@@ -473,7 +463,7 @@ function bindDashboard() {
     const uploadNewDataBtn = document.getElementById('upload-new-data-btn');
     if (uploadNewDataBtn) {
         uploadNewDataBtn.addEventListener('click', () => {
-            localStorage.removeItem('shadownet_devices');
+            sessionStorage.removeItem('shadownet_devices');
             window.location.href = 'data-upload.html';
         });
     }
@@ -1039,11 +1029,11 @@ function bindSettings() {
         const newAccentColor = document.getElementById('setting-accent-color')?.value;
         if (newAccentColor) {
             AppState.settings.accentColor = newAccentColor;
-            localStorage.setItem('shadownet-accent', newAccentColor);
+            sessionStorage.setItem('shadownet-accent', newAccentColor);
             document.documentElement.style.setProperty('--accent-color', newAccentColor);
         }
 
-        localStorage.setItem('shadownet-settings', JSON.stringify({
+        sessionStorage.setItem('shadownet-settings', JSON.stringify({
             adminName: AppState.settings.adminName,
             organization: AppState.settings.organization,
             role: AppState.settings.role,
@@ -1065,7 +1055,7 @@ function bindSettings() {
         if (confirm('This will clear ALL devices and reset the application. Continue?')) {
             AppState.devices = [];
             AppState.alertStates.clear();
-            localStorage.removeItem('shadownet-devices');
+            sessionStorage.removeItem('shadownet-devices');
             updateAlertBadge();
             window.location.hash = '#dashboard';
             handleRoute();

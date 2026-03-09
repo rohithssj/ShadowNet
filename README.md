@@ -1,78 +1,133 @@
-# ShadowNet SOC Dashboard - What the Site Shows and Why
+ShadowNet – Intelligent Cybersecurity Monitoring Platform
+Overview
 
-## Purpose & Audience
-ShadowNet is a lightweight, frontend-only SOC dashboard built for security analysts, SOC teams, IT operators, and small-to-medium organizations that need quick visibility into networked devices without a backend. It helps teams prioritize remediation, triage incidents, and produce simple reports from locally-provided device data.
+ShadowNet is an intelligent cybersecurity monitoring platform designed to identify vulnerable and forgotten devices within an organization's network infrastructure. The system analyzes device metadata such as IP address, open ports, protocol usage, patch history, and system uptime to evaluate security risks and highlight potential attack surfaces.
 
-Who benefits:
-- SOC analysts and incident responders — fast triage and top-risk lists
-- IT / operations teams — asset visibility and patch-age insights
-- Compliance owners — quick exportable evidence (PDF/CSV/Excel)
-- Trainers/POCs — demo risk scoring and dashboards without infra
+The platform provides a centralized dashboard that allows security teams to monitor device risk levels, visualize security trends, and identify legacy systems that may introduce vulnerabilities into the network.
 
-## What data we ask for
-The dashboard expects device inventory rows (manual entry or upload). Required fields:
-- `ip` (string)
-- `port` or `open_ports` (integer or list)
-- `protocol` (e.g., TCP, UDP, HTTP, SSH)
-- `last_patch_year` (4-digit year)
-- `uptime` or `uptime_days` (integer, days)
+ShadowNet was initially developed as part of a cybersecurity hackathon project focused on improving visibility into unmanaged or forgotten network devices within government and enterprise environments.
 
-Optional helpful fields:
-- `device_type`, `business_impact`, `recommendation`
+Problem Statement
 
-Files accepted: CSV or Excel (.csv, .xlsx, .xls). The upload preview shows parsed rows before import.
+Large organizations often operate complex networks consisting of hundreds or thousands of connected devices, including servers, workstations, printers, scanners, biometric systems, kiosks, and IoT devices. Over time, some of these systems become unmanaged or remain operational without regular updates.
 
-## What the site shows (derived from the provided data)
-From the fields above the app derives risk scores and visualizations that answer operational questions:
+Such devices create hidden attack surfaces that can be exploited by attackers. Traditional security monitoring tools frequently rely on predefined asset inventories, which means unknown or forgotten devices may remain undetected.
 
-- Dashboard summary metrics: Security Score, counts of Critical / High / Medium / Low devices, total devices.
-- Risk Distribution (donut): percentage and counts per risk level (CRITICAL / HIGH / MEDIUM / LOW).
-- Device Composition (bar): top device types and their counts to show asset mix.
-- Top 5 Critical Devices: sorted list of the highest-risk devices with a risk percentage, brief recommendation, and a visual severity bar (color-coded: deep red → orange → yellow → green).
-- Exposure Index / High+Critical %: aggregate metric showing proportion of devices needing urgent attention.
-- Business Impact breakdown: how risk maps to declared business impact buckets (stacked bars).
-- Lifecycle correlation: comparison of average risk between outdated (long-unpatched) vs maintained systems.
-- Current vs Projected Risk Trend: simple trend lines to visualize direction of risk.
-- Devices table: full device list with details, expandable risk analysis, and filtering/sorting.
-- Alerts panel: active / resolved / escalated alerts computed from risk state and user actions; alert badge shows active critical/high counts.
-- Upload preview table: raw parsed rows with counts before adding to the dashboard.
-- Export options: download the current dataset or report as CSV, Excel, or PDF for sharing and audit.
+ShadowNet addresses this challenge by analyzing device lifecycle indicators and exposure characteristics to identify potential risks within the network.
 
-Each visualization is computed client-side from the uploaded or manually-entered rows; charts update instantly when devices are added.
+Key Features
+Device Risk Analysis
 
-## Why this matters
-- Fast, infrastructure-free visibility: teams can get meaningful risk insights without deploying servers or databases.
-- Prioritization: the Top 5 and Exposure Index give a focused view for remediation planning.
-- Auditability: PDF/CSV/Excel exports let teams include dashboard output in reports or ticketing systems.
-- Portable demos & training: easy to demonstrate SOC workflows without backend complexity.
+ShadowNet evaluates device risk using multiple indicators including open ports, protocol exposure, patch age, and system uptime. These factors are combined to generate a normalized risk score and categorize devices into different security levels such as Low, Medium, High, and Critical.
 
-## Data privacy & limits
-- All processing happens in the browser — no data leaves your machine unless you explicitly export it.
-- No persistence: data is kept in-memory for the session and cleared on refresh (by design).
-- Not a replacement for enterprise SIEMs — this is a lightweight tool for visibility, triage, and demonstration.
+Predictive Risk Insights
 
-## How to use the data (short guide)
-1. Open `index.html` (Live Server recommended).
-2. Go to Add Devices → Manual Entry to add single devices, or Upload to import a CSV/Excel file.
-3. Preview the upload, then confirm to add devices to the session.
-4. Visit Dashboard / Analytics to review charts, Top 5, and alert badge.
-5. Export a report via PDF / CSV / Excel for stakeholders.
+The platform provides predictive insights by projecting potential future risk levels for devices based on their current exposure and lifecycle conditions. This allows organizations to identify systems that may become critical if they remain unpatched or unmanaged.
 
-## Want changes?
-If you need different derived fields (different risk weights, new impact buckets, or persistence), edit `app.js` (risk calculation and `getRiskLevel()`), or ask and I can add an offline persistence option (localStorage) or CSV auto-save.
+Forgotten Device Detection
 
----
-Updated to document what the site shows, the required input data, the target audience, and why this frontend-only SOC dashboard is useful.
-A: Yes! Use any static hosting (Netlify, Vercel, GitHub Pages, etc.).
+ShadowNet identifies devices that have been running for extended periods without updates. These legacy systems are highlighted because they often represent hidden entry points for attackers within the infrastructure.
 
----
+Real Time Risk Monitoring
 
-## Ready to Use!
+The dashboard includes a simulated live monitoring feed that highlights devices with abnormal risk indicators or elevated security concerns. This helps demonstrate how a security operations center (SOC) might monitor network activity continuously.
 
-No installation. No configuration. No database setup.
+Security Score and Attack Surface Index
 
-**Open `index.html` and start analyzing!**
+ShadowNet calculates an overall network security score based on device exposure levels and infrastructure health. This provides a quick snapshot of the organization’s security posture and highlights the overall attack surface of the network.
 
----
+Explainable Risk Insights
 
-*ShadowNet Frontend-Only Edition - Pure Browser-Based Security Analysis*
+For every high-risk device, the platform displays detailed explanations describing the factors contributing to the risk. These insights help security teams understand why a device has been flagged and what corrective action should be taken.
+
+Network Asset Visualization
+
+The platform provides visual representations of network devices, helping security teams understand how infrastructure assets are distributed across the network.
+
+Data Input Methods
+Manual Device Entry
+
+Users can manually enter device metadata using the upload interface. Required fields include:
+
+IP address
+Port
+Protocol
+Last patch year
+System uptime (days)
+
+CSV or Excel Dataset Upload
+
+Organizations can upload datasets containing device metadata.
+
+Supported file formats:
+
+CSV
+Excel (.xlsx)
+
+Required dataset columns:
+
+ip
+port
+protocol
+last_patch_year
+uptime
+
+Once uploaded, the dataset is processed locally and used to generate analytics within the dashboard.
+
+Security and Data Handling
+
+ShadowNet processes uploaded device metadata entirely within the browser environment. Device datasets are stored temporarily using session storage to ensure that sensitive infrastructure information is not retained beyond the active session.
+
+Key security considerations include:
+
+Session-based data storage
+No external transmission of device metadata
+Automatic data clearance when the browser session ends
+
+This approach ensures that network information remains on the user’s system and is not stored on external servers.
+
+Technology Stack
+
+Frontend
+HTML
+CSS
+JavaScript
+
+Visualization
+Chart.js
+
+File Processing
+CSV parsing
+Excel parsing using SheetJS
+
+Deployment
+Netlify
+
+System Architecture
+
+User Login
+→ Data Upload or Manual Entry
+→ Device Data Processing
+→ Risk Analysis Engine
+→ Predictive Risk Evaluation
+→ Dashboard Visualization and Alerts
+
+Use Cases
+
+Enterprise Network Security Monitoring
+Government Infrastructure Risk Assessment
+Security Operations Center Dashboards
+Cybersecurity Education and Training
+
+Future Improvements
+
+Integration with automated network discovery tools
+Integration with vulnerability intelligence databases such as CVE and NVD
+Machine learning models for behavioral anomaly detection
+Role-based access control for enterprise environments
+Secure backend storage with encrypted databases
+Integration with security information and event management (SIEM) platforms
+
+Conclusion
+
+ShadowNet demonstrates how device lifecycle indicators and network exposure metrics can be used to identify hidden vulnerabilities in modern IT environments. By combining intelligent risk analysis, predictive insights, and visual monitoring, the platform enables organizations to proactively reduce their cyber attack surface and improve infrastructure resilience.

@@ -494,15 +494,10 @@
             window.location.href = 'login.html';
         }
 
-        // Theme handling
+        // Theme handling — always dark mode
         function initTheme() {
-            const isDarkMode = localStorage.getItem('shadownet-dark') !== 'false';
-            if (isDarkMode) {
-                document.body.classList.remove('light-mode');
-            } else {
-                document.body.classList.add('light-mode');
-            }
-            const accentColor = localStorage.getItem('shadownet-accent') || '#00ff96';
+            document.body.classList.remove('light-mode');
+            const accentColor = sessionStorage.getItem('shadownet-accent') || '#00ff96';
             document.documentElement.style.setProperty('--accent-color', accentColor);
         }
         initTheme();
@@ -521,8 +516,8 @@
                 device_type: 'Manual Entry'
             };
             
-            // Save to localStorage so dashboard can load it after redirect
-            localStorage.setItem('shadownet_devices', JSON.stringify([device]));
+            // Save to sessionStorage so dashboard can load it after redirect
+            sessionStorage.setItem('shadownet_devices', JSON.stringify([device]));
             window.location.href = 'index.html#dashboard';
         });
 
@@ -663,8 +658,8 @@
                         return;
                     }
 
-                    // Save to localStorage so dashboard can load it after redirect
-                    localStorage.setItem('shadownet_devices', JSON.stringify(validDevices));
+                    // Save to sessionStorage so dashboard can load it after redirect
+                    sessionStorage.setItem('shadownet_devices', JSON.stringify(validDevices));
                     window.location.href = 'index.html#dashboard';
                 } catch (error) {
                     showUploadError('Error processing file: ' + error.message);
