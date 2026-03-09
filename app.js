@@ -42,17 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════════════════════════════════
 
 function processPendingDevices() {
-    if (window.pendingDevice) {
-        calculateDeviceRisk(window.pendingDevice);
-        AppState.devices.push(window.pendingDevice);
-        window.pendingDevice = null;
-    }
-    if (window.pendingDevices && Array.isArray(window.pendingDevices)) {
-        window.pendingDevices.forEach(device => {
-            calculateDeviceRisk(device);
-            AppState.devices.push(device);
-        });
-        window.pendingDevices = null;
+    // Load devices from localStorage (persisted by data-upload page)
+    const savedDevices = localStorage.getItem('shadownet_devices');
+    if (savedDevices) {
+        try {
+            const devices = JSON.parse(savedDevices);
+            if (Array.isArray(devices) && devices.length) {
+                devices.forEach(device => {
+                    calculateDeviceRisk(device);
+                    AppState.devices.push(device);
+                });
+            }
+        } catch (e) {
+            console.error('Error loading saved devices:', e);
+        }
     }
 }
 
@@ -95,7 +98,6 @@ function initNavbar() {
     const hamburger = document.getElementById('hamburger-btn');
     const navLinks = document.getElementById('nav-links');
     const logoutBtn = document.getElementById('btn-logout');
-    const clock = document.getElementById('live-clock');
 
     if (hamburger) {
         hamburger.addEventListener('click', () => {
@@ -115,25 +117,6 @@ function initNavbar() {
                 window.location.href = 'login.html';
             }
         });
-    }
-
-    // Live clock
-    if (clock) {
-        function updateClock() {
-            const now = new Date();
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const d = days[now.getDay()];
-            const dd = String(now.getDate()).padStart(2, '0');
-            const mm = months[now.getMonth()];
-            const yyyy = now.getFullYear();
-            const hh = String(now.getHours()).padStart(2, '0');
-            const mi = String(now.getMinutes()).padStart(2, '0');
-            const ss = String(now.getSeconds()).padStart(2, '0');
-            clock.textContent = `${d} ${dd} ${mm} ${yyyy} | ${hh}:${mi}:${ss}`;
-        }
-        updateClock();
-        setInterval(updateClock, 1000);
     }
 
     // Global search
@@ -457,10 +440,11 @@ function renderDashboard() {
 }
 
 function bindDashboard() {
-    // Upload new data button
+    // Upload new data button — clear previous dataset and go to upload page
     const uploadNewDataBtn = document.getElementById('upload-new-data-btn');
     if (uploadNewDataBtn) {
         uploadNewDataBtn.addEventListener('click', () => {
+            localStorage.removeItem('shadownet_devices');
             window.location.href = 'data-upload.html';
         });
     }

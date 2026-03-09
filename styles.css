@@ -426,20 +426,6 @@ textarea {
     font-size: 0.78rem
 }
 
-/* Live Clock */
-.topnav__clock {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    color: var(--clr-low);
-    text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-    white-space: nowrap;
-    padding: 0.3rem 0.7rem;
-    border: 1px solid rgba(34, 197, 94, 0.15);
-    border-radius: var(--radius-xs);
-    background: rgba(34, 197, 94, 0.04)
-}
 
 /* Theme Toggle */
 .theme-toggle {
@@ -1727,12 +1713,6 @@ body.light-mode .topnav {
     box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05)
 }
 
-body.light-mode .topnav__clock {
-    color: #15803d;
-    text-shadow: none;
-    border-color: rgba(21, 128, 61, 0.15);
-    background: rgba(21, 128, 61, 0.04)
-}
 
 body.light-mode .data-table thead th {
     background: rgba(255, 255, 255, 0.95)
@@ -1793,9 +1773,6 @@ body.light-mode .data-table thead th {
         width: 180px
     }
 
-    .topnav__clock {
-        display: none
-    }
 
     .main {
         padding: 1.25rem
