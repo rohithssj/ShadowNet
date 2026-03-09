@@ -214,6 +214,12 @@ function handleRoute() {
     const content = document.getElementById('content');
     if (!content) return;
 
+    // Clear live risk feed interval if running
+    if (typeof liveRiskInterval !== 'undefined' && liveRiskInterval) {
+        clearInterval(liveRiskInterval);
+        liveRiskInterval = null;
+    }
+
     // Clear previous chart instances
     Object.values(AppState.chartInstances).forEach(chart => {
         if (chart && chart.destroy) chart.destroy();
@@ -439,6 +445,17 @@ function renderDashboard() {
 
         <!-- Heatmap removed (frontend-only app) -->
 
+        <!-- ═══ Live Risk Monitor ═══ -->
+        <div class="chart-card" style="margin-top:20px;">
+            <h3 class="section-title"><i data-lucide="radio"></i> Live Risk Monitor</h3>
+            <div id="live-risk-feed" style="max-height:320px;overflow-y:auto;padding:8px 0;font-size:0.88rem;">
+                <div style="color:var(--text-muted);padding:12px;text-align:center;">Initializing live feed...</div>
+            </div>
+        </div>
+
+        <!-- ═══ Legacy / Forgotten Device Monitor ═══ -->
+        ${renderLegacyDevicePanel()}
+
         <!-- Critical Devices Requiring Immediate Attention (Full Width) -->
         <div class="chart-card" style="margin-top:20px;">
             <h3 class="section-title section-title--critical"><i data-lucide="shield-alert"></i> Critical Devices Requiring Immediate Attention</h3>
@@ -478,6 +495,9 @@ function bindDashboard() {
     // Charts
     drawRiskDistributionDonutChart();
     drawDeviceTypesChart();
+
+    // Live Risk Monitor feed
+    startLiveRiskFeed();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -585,6 +605,15 @@ function renderAnalytics() {
             <canvas id="chart-risk-trend-dual"></canvas>
         </div>
 
+        <!-- ═══ Risk Projection Timeline ═══ -->
+        <div class="chart-card chart-card--full" style="margin-top:20px;">
+            <h3 class="section-title"><i data-lucide="git-branch"></i> Risk Projection Timeline</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Current risk vs projected future risk per device</p>
+            <div style="position:relative;height:400px;">
+                <canvas id="chart-risk-projection"></canvas>
+            </div>
+        </div>
+
     `;
 }
 
@@ -595,6 +624,7 @@ function bindAnalytics() {
     drawImpactBreakdownChart();
     drawLifecycleCorrelationChart();
     drawDualRiskTrendChart();
+    drawRiskProjectionTimeline();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1843,6 +1873,288 @@ function exportPDF() {
     pdf.save(`shadownet-report-${new Date().toISOString().split('T')[0]}.pdf`);
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// FEATURE: LEGACY / FORGOTTEN DEVICE MONITOR PANEL
+// ═══════════════════════════════════════════════════════════════════════
 
+function renderLegacyDevicePanel() {
+    const currentYear = new Date().getFullYear();
+    // Compute "forgotten" from available data if the field isn't already set
+    const forgottenDevices = AppState.devices.filter(d => {
+        if (typeof d.forgotten === 'boolean') return d.forgotten;
+        const patchAge = currentYear - (d.last_patch_year || currentYear);
+        return (d.uptime_days || 0) > 365 && patchAge > 3;
+    });
 
+    const summaryCount = forgottenDevices.length;
 
+    if (summaryCount === 0) {
+        return `
+        <div class="chart-card" style="margin-top:20px;">
+            <h3 class="section-title"><i data-lucide="clock"></i> Legacy / Forgotten Device Monitor</h3>
+            <div style="padding:24px;text-align:center;color:var(--text-muted);">
+                <i data-lucide="check-circle" style="width:36px;height:36px;opacity:0.5;margin-bottom:8px;display:inline-block;"></i>
+                <p style="font-size:1rem;">All devices are within acceptable lifecycle limits.</p>
+            </div>
+        </div>`;
+    }
+
+    const tableRows = forgottenDevices.map(d => {
+        const riskCls = (d.risk_level || 'MEDIUM').toLowerCase();
+        return `
+            <tr>
+                <td style="padding:10px 12px;">
+                    <span style="color:#ef4444;margin-right:6px;">&#9888;</span>
+                    <strong>${d.ip}</strong>
+                </td>
+                <td style="padding:10px 12px;">${d.device_type || 'Unknown'}</td>
+                <td style="padding:10px 12px;">${d.uptime_days || 0} days</td>
+                <td style="padding:10px 12px;">
+                    <span class="risk-badge risk-badge--${riskCls}">${d.risk_level || 'UNKNOWN'}</span>
+                </td>
+                <td style="padding:10px 12px;font-size:0.85rem;color:var(--text-secondary);">${d.recommendation || 'Monitor device'}</td>
+            </tr>`;
+    }).join('');
+
+    return `
+    <div class="chart-card" style="margin-top:20px;">
+        <h3 class="section-title"><i data-lucide="clock"></i> Legacy / Forgotten Device Monitor</h3>
+
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+            <div style="background:rgba(239,68,68,0.15);border-radius:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="alert-triangle" style="color:#ef4444;width:22px;height:22px;"></i>
+            </div>
+            <div>
+                <div style="font-weight:700;font-size:1.05rem;color:var(--text-primary);">Legacy Devices Detected</div>
+                <div style="font-size:0.88rem;color:var(--text-secondary);">${summaryCount} device${summaryCount > 1 ? 's' : ''} running over 365 days without patch updates.</div>
+            </div>
+        </div>
+
+        <div class="devices-table-wrapper">
+            <table class="devices-table" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th style="padding:10px 12px;">IP</th>
+                        <th style="padding:10px 12px;">Device Type</th>
+                        <th style="padding:10px 12px;">Uptime</th>
+                        <th style="padding:10px 12px;">Risk Level</th>
+                        <th style="padding:10px 12px;">Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FEATURE: LIVE RISK MONITOR (Simulated SOC Feed)
+// ═══════════════════════════════════════════════════════════════════════
+
+let liveRiskInterval = null;
+
+function startLiveRiskFeed() {
+    // Clear any previous interval
+    if (liveRiskInterval) clearInterval(liveRiskInterval);
+
+    const feed = document.getElementById('live-risk-feed');
+    if (!feed || !AppState.devices.length) return;
+
+    const MAX_EVENTS = 8;
+    const events = [];
+
+    function generateEvent() {
+        const device = AppState.devices[Math.floor(Math.random() * AppState.devices.length)];
+        const currentYear = new Date().getFullYear();
+        const isForgotten = typeof device.forgotten === 'boolean'
+            ? device.forgotten
+            : ((device.uptime_days || 0) > 365 && (currentYear - (device.last_patch_year || currentYear)) > 3);
+
+        let icon = '🔵';
+        let msg = '';
+        const now = new Date().toLocaleTimeString();
+
+        if (device.risk_level === 'CRITICAL') {
+            icon = '🔴';
+            const msgs = [
+                `<strong>${device.ip}</strong> flagged as <span style="color:#ef4444;font-weight:700;">CRITICAL</span> — immediate isolation required`,
+                `Critical vulnerability detected on <strong>${device.ip}</strong> (${device.device_type || 'Unknown'})`,
+                `<strong>${device.ip}</strong> risk score at ${device.risk_score}% — emergency patching needed`
+            ];
+            msg = msgs[Math.floor(Math.random() * msgs.length)];
+        } else if (isForgotten) {
+            icon = '⚠️';
+            const msgs = [
+                `<strong>${device.ip}</strong> flagged as forgotten legacy device`,
+                `Legacy device <strong>${device.ip}</strong> running ${device.uptime_days || '?'} days without reboot`,
+                `<strong>${device.ip}</strong> (${device.device_type || 'Unknown'}) has not been patched since ${device.last_patch_year || '?'}`
+            ];
+            msg = msgs[Math.floor(Math.random() * msgs.length)];
+        } else if (device.risk_level === 'HIGH') {
+            icon = '🟠';
+            const msgs = [
+                `<strong>${device.ip}</strong> risk increased to <span style="color:#f59e0b;font-weight:700;">HIGH</span>`,
+                `High risk activity on <strong>${device.ip}</strong> — ${device.recommendation || 'urgent update required'}`,
+                `<strong>${device.ip}</strong> exposed on port ${device.port || 'unknown'} — ${device.risk_score}% risk`
+            ];
+            msg = msgs[Math.floor(Math.random() * msgs.length)];
+        } else if (device.risk_level === 'MEDIUM') {
+            icon = '🟡';
+            msg = `<strong>${device.ip}</strong> (${device.device_type || 'Unknown'}) — moderate risk detected, monitoring`;
+        } else {
+            icon = '🟢';
+            msg = `<strong>${device.ip}</strong> scan complete — device within safe parameters`;
+        }
+
+        events.unshift({ icon, msg, time: now });
+        if (events.length > MAX_EVENTS) events.pop();
+
+        feed.innerHTML = events.map(e => `
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);animation:fadeInDown 0.3s ease;">
+                <span style="font-size:1.1rem;line-height:1.4;flex-shrink:0;">${e.icon}</span>
+                <div style="flex:1;line-height:1.45;color:var(--text-secondary);">${e.msg}</div>
+                <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;margin-top:2px;">${e.time}</span>
+            </div>
+        `).join('');
+    }
+
+    // Immediate first event
+    generateEvent();
+
+    // Every 5 seconds
+    liveRiskInterval = setInterval(generateEvent, 5000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FEATURE: RISK PROJECTION TIMELINE CHART (Analytics)
+// ═══════════════════════════════════════════════════════════════════════
+
+function drawRiskProjectionTimeline() {
+    const canvas = document.getElementById('chart-risk-projection');
+    if (!canvas || !AppState.devices.length) return;
+
+    const currentYear = new Date().getFullYear();
+
+    // Compute risk_percentage and future_risk_percentage if not already present
+    const devices = AppState.devices.map(d => {
+        const riskPct = d.risk_percentage ?? d.risk_score ?? 0;
+        let futureRiskPct = d.future_risk_percentage;
+        if (futureRiskPct === undefined || futureRiskPct === null) {
+            const isForgotten = typeof d.forgotten === 'boolean'
+                ? d.forgotten
+                : ((d.uptime_days || 0) > 365 && (currentYear - (d.last_patch_year || currentYear)) > 3);
+            futureRiskPct = Math.min((riskPct || 0) + (isForgotten ? 10 : 5), 100);
+        }
+        return { ...d, riskPct, futureRiskPct };
+    });
+
+    const labels = devices.map(d => d.ip.split('.').pop());
+    const currentData = devices.map(d => d.riskPct);
+    const futureData = devices.map(d => d.futureRiskPct);
+
+    const ctx = canvas.getContext('2d');
+    const isDark = !document.body.classList.contains('light-mode');
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
+
+    if (AppState.chartInstances['riskProjection']) {
+        AppState.chartInstances['riskProjection'].destroy();
+    }
+
+    AppState.chartInstances['riskProjection'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Current Risk %',
+                    data: currentData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1
+                },
+                {
+                    label: 'Projected Future Risk %',
+                    data: futureData,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239,68,68,0.05)',
+                    borderWidth: 2.5,
+                    borderDash: [8, 4],
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Device (last IP octet)',
+                        color: textColor,
+                        font: { size: 12 }
+                    },
+                    ticks: { color: textColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Risk Percentage',
+                        color: textColor,
+                        font: { size: 12 }
+                    },
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        color: textColor,
+                        callback: v => v + '%'
+                    },
+                    grid: { color: gridColor }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.95)',
+                    titleColor: isDark ? '#fff' : '#111',
+                    bodyColor: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
+                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    callbacks: {
+                        title: (items) => {
+                            const idx = items[0].dataIndex;
+                            return `Device: ${devices[idx].ip}`;
+                        },
+                        label: (item) => ` ${item.dataset.label}: ${item.raw}%`
+                    }
+                }
+            }
+        }
+    });
+}
