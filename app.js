@@ -31,12 +31,12 @@ const AppState = {
 document.addEventListener('DOMContentLoaded', () => {
     // Guard: if no dataset exists, redirect to data-upload page
     const hasDevices = sessionStorage.getItem('shadownet_devices');
-    const isLoggedIn = sessionStorage.getItem('logged_in');
-    if (!hasDevices && !isLoggedIn) {
+    const isLoggedIn = sessionStorage.getItem('shadownet_user');
+    if (!isLoggedIn) {
         window.location.href = 'login.html';
         return;
     }
-    if (!hasDevices && isLoggedIn) {
+    if (!hasDevices) {
         window.location.href = 'data-upload.html';
         return;
     }
@@ -116,6 +116,8 @@ function initNavbar() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             if (confirm('Logout from ShadowNet SOC?')) {
+                sessionStorage.removeItem('shadownet_user');
+                sessionStorage.removeItem('shadownet_devices');
                 window.location.href = 'login.html';
             }
         });

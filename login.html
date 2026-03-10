@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -68,37 +69,97 @@
     </footer>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        // ── Auto-redirect if already logged in ──
+        if (sessionStorage.getItem('shadownet_user')) {
+            window.location.href = 'data-upload.html';
+        }
+
+        // ── SHA-256 Password Hashing ──
+        async function hashPassword(password) {
+            const data = new TextEncoder().encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        // ── Message Display Helper ──
+        function showMsg(text, isError) {
+            let msgEl = document.getElementById('login-msg');
+            if (!msgEl) {
+                msgEl = document.createElement('div');
+                msgEl.id = 'login-msg';
+                const form = document.getElementById('login-form');
+                form.parentNode.insertBefore(msgEl, form.nextSibling);
+            }
+            msgEl.textContent = text;
+            msgEl.style.cssText = 'padding:10px 14px;margin-top:12px;border-radius:8px;font-size:0.9rem;text-align:center;' +
+                (isError
+                    ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);'
+                    : 'background:rgba(0,255,150,0.12);color:#00ff96;border:1px solid rgba(0,255,150,0.3);');
+        }
+
+        // ── Login Handler ──
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
             const submitBtn = e.target.querySelector('button');
 
-            // Validate fields
-            if (!email || !password) {
-                alert('Please fill in all fields.');
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMsg('Please enter a valid email address.', true);
                 return;
             }
 
-            if (!email.includes('@')) {
-                alert('Please enter a valid email.');
+            // Validate password
+            if (password.length < 6) {
+                showMsg('Password must be at least 6 characters.', true);
                 return;
             }
 
-            if (password.length < 4) {
-                alert('Password must be at least 4 characters.');
+            // Look up stored users
+            let users = [];
+            try { users = JSON.parse(localStorage.getItem('shadownet_users')) || []; } catch (e) { users = []; }
+
+            const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (!matchedUser) {
+                showMsg('Invalid email or password.', true);
                 return;
             }
 
-            // Show success message and redirect
+            // Hash entered password and compare
             submitBtn.disabled = true;
             submitBtn.innerText = 'Verifying...';
 
-            setTimeout(() => {
-                alert('Login successful. Let\'s add your devices...');
-                sessionStorage.setItem('logged_in', 'true');
-                window.location.href = 'data-upload.html';
-            }, 500);
+            try {
+                const hashedPassword = await hashPassword(password);
+
+                if (hashedPassword !== matchedUser.password) {
+                    showMsg('Invalid email or password.', true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Login';
+                    return;
+                }
+
+                // Set session
+                sessionStorage.setItem('shadownet_user', JSON.stringify({
+                    username: matchedUser.username,
+                    email: matchedUser.email
+                }));
+
+                showMsg('Login successful. Redirecting...', false);
+
+                setTimeout(() => {
+                    window.location.href = 'data-upload.html';
+                }, 800);
+            } catch (err) {
+                showMsg('Login failed. Please try again.', true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Login';
+            }
         });
     </script>
 </body>
